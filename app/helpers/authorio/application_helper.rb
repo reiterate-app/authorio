@@ -1,4 +1,4 @@
 module Authorio
-  module Helpers
+  module ApplicationHelper
   end
 end
