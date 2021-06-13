@@ -1,5 +1,5 @@
 module Authorio
-  # Those helpers are convenience methods added to ApplicationController.
+  # These helpers are provided to the main application
   module Helpers
     extend ActiveSupport::Concern
 
@@ -10,14 +10,7 @@ module Authorio
     end
 
     def indieauth_tag
-      %Q[<link rel="authorization_endpoint" href="#{authorization_uri}">].html_safe
-    end
-
-
-    private
-
-    def authorization_uri
-      URI.join(root_url, Authorio.configuration.authorization_endpoint)
+      %Q[<link rel="authorization_endpoint" href="#{URI.join(root_url, Authorio.authorization_path)}">].html_safe
     end
   end
 end
