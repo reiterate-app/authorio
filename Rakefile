@@ -5,6 +5,8 @@ load "rails/tasks/engine.rake"
 
 load "rails/tasks/statistics.rake"
 
+load "lib/tasks/authorio_tasks.rake"
+
 require "bundler/gem_tasks"
 
 require "rake/testtask"
