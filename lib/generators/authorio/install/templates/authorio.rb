@@ -2,6 +2,14 @@
 
 Authorio.configure do |config|
 
+	# Mount point for Authorio URLs. Typically you would call this in your routes.rb
+	# as mount Authorio::Engine, at: mount_point
+	# But Authorio needs to know its own mount point, so we define it here and use a custom mount command in the config
+	# config.mount_point = "authorio"
+
 	# The path where clients will be redirected to provide authentication
-	# config.authorization_endpoint = "/auth/"
+	# config.authorization_endpoint = "auth"
+
+	# The path for token requests
+	# config.token_endpoint = "token"
 end
