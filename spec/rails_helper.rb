@@ -1,11 +1,16 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
-require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../test/dummy/config/environment.rb', __dir__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
+
+# RSpec gets confused about our engine's migrations, so tell it to ignore them
+# https://github.com/rspec/rspec-rails/issues/1330#issuecomment-78061287
+ActiveRecord::Migrator.migrations_paths = 'spec/dummy/db/migrate'
+
+require 'spec_helper'
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
