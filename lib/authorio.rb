@@ -2,6 +2,7 @@ require "authorio/version"
 require "authorio/engine"
 require "authorio/configuration"
 require "authorio/routes"
+require "authorio/exceptions"
 
 module Authorio
 	class << self
