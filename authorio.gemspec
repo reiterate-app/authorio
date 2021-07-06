@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", "~> 6.1.3", ">= 6.1.3.2"
   spec.add_dependency "bcrypt"
+  spec.add_development_dependency "factory_bot_rails"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "rspec-rails"
   spec.add_development_dependency "byebug"
