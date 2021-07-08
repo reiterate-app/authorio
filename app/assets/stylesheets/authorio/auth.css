@@ -1,0 +1,41 @@
+div.authorio-auth {
+	padding-top: 200px;
+}
+
+.authorio-auth h3 {
+	text-align: center;
+}
+
+.authorio-auth .client-row {
+	text-align: center;
+	color: darkolivegreen;
+	margin-top: -0.5em;
+}
+
+.authorio-auth span.client {
+	font-weight: bold;
+}
+
+.auth-panel {
+	background-color: gainsboro;
+	border-bottom: 2px solid darkgray;
+	padding-bottom: 3em;
+}
+
+.authorio-auth label {
+	display: block;
+	margin-left:  1.2em;
+}
+
+.authorio-auth input {
+	margin: 0 1em 1em 1em;
+	width:  90%;
+}
+
+.authorio-auth form {
+	margin-top: 2em;
+}
+
+.authorio-auth input.btn {
+	margin-top: 2em;
+}

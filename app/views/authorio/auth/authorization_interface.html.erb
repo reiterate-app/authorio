@@ -2,49 +2,33 @@
 <html lang="en-GB">
   <head>
     <meta charset="utf-8">
-    <title>Authorio</title>
+    <title>Authorio Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
       integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
       crossorigin="anonymous">
+    <%= stylesheet_link_tag "authorio/auth" %>
   </head>
   <body>
-    <div class="container">
+    <div class="container authorio-auth">
       <div class="row">
-        <div class="col-md-8">
-
+        <div class="col-md-4">
+        </div>
+        <div class="col-md-4 auth-panel">
           <h3>Authorio</h3>
-
-          <table class="table">
-            <thead>
-              <tr>
-                <th>me</th>
-                <th><%= h params[:me] %></th>
-              </tr>
-            </thead>
-            <tr>
-              <th>client_id</th>
-              <td><%= h params[:client_id] %></td>
-            </tr>
-            <tr>
-              <th>redirect_uri</th>
-              <td><%= h params[:redirect_uri] %></td>
-            </tr>
-            <tr>
-              <th>scope(s)</th>
-              <td><code><%= h params[:scope] %></code></td>
-            </tr>
-          </table>
-
-          <form action="/auth/github" method="get">
-            <div>
-              <button type="submit" class="btn btn-success">
-                Approve with GitHub
-              </button>
-            </p>
-          </form>
-
+          <div class="client-row">
+            Authenticating with <span class="client"><%= params[:client_id] %>
+          </div>
+          <%= form_with(url: "authorize_user", method: :post) do |form| %>
+          <%= form.label(:url, "User URL") %>
+          <%= form.text_field(:url, value: @user_url, readonly: true) %>
+          <%= form.label(:password, "Password") %>
+          <%= form.password_field(:password) %>
+          <%= form.submit("Sign in", class: 'btn btn-success') %>
+          <% end %>
+        </div>
+        <div class="col-md-4">
         </div>
       </div>
     </div>

@@ -10,7 +10,9 @@ module Authorio
       else
         '/'
       end
+
       user = User.find_by! profile_path: path
+      @user_url = p[:me] || "#{request.scheme}://#{request.host_with_port}#{user.profile_path}"
 
       auth_request = Request.new.tap do |req|
         req.code = p[:code_challenge]
