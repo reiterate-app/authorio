@@ -1,7 +1,8 @@
 module Authorio
-  require 'uri'
-
   class AuthController < ActionController::Base
+    require 'uri'
+    require 'digest'
+
     def authorization_interface
       p = auth_req_params
 
@@ -12,13 +13,13 @@ module Authorio
       end
 
       user = User.find_by! profile_path: path
-      @user_url = p[:me] || "#{request.scheme}://#{request.host_with_port}#{user.profile_path}"
+      @user_url = p[:me] || user_url(user)
 
       # If there are any old requests from this (client, user), delete them now
       Request.where(authorio_user: user, client: p[:client_id]).delete_all
 
       auth_request = Request.new.tap do |req|
-        req.code = p[:code_challenge]
+        req.code = SecureRandom.hex(20)
         req.redirect_uri = p[:redirect_uri]
         req.client = p[:client_id] # IndieAuth client_id conflicts with Rails' _id foreign key convention
         req.scope = p[:scope]
@@ -26,6 +27,7 @@ module Authorio
       end
       auth_request.save
       session[:state] = p[:state]
+      session[:code_challenge] = p[:code_challenge]
     end
 
     def authorize_user
@@ -38,6 +40,23 @@ module Authorio
         flash.now[:alert] = "Incorrect password. Try again."
         redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
       end
+    end
+
+    def verify_code
+      if session[:code_challenge]
+        sha256 = Digest::SHA256.hexdigest params[:code_verifier]
+        base64 = Base64.urlsafe_encode64 sha256
+        render invalid_grant and return if base64 != session[:code_challenge]
+      end
+
+      req = Request.find_by code: params[:code]
+      render invalid_grant and return if req.nil?
+      req.delete
+      render invalid_grant and return \
+        if req.redirect_uri != params[:redirect_uri] || req.client != params[:client_id] \
+        || req.created_at < Time.now - 10.minutes
+
+      render json: { 'me': user_url(req.authorio_user) }
     end
 
     private
@@ -53,6 +72,14 @@ module Authorio
 
     def auth_user_params
       params.permit(:password, :url, :client)
+    end
+
+    def user_url(user)
+      "#{request.scheme}://#{request.host}#{user.profile_path}"
+    end
+
+    def invalid_grant
+      { json: { 'error': 'invalid_grant' }, status: :bad_request }
     end
   end
 end
