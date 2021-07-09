@@ -25,6 +25,7 @@
           <%= form.text_field(:url, value: @user_url, readonly: true) %>
           <%= form.label(:password, "Password") %>
           <%= form.password_field(:password) %>
+          <%= form.hidden_field(:client, value: params[:client_id]) %>
           <%= form.submit("Sign in", class: 'btn btn-success') %>
           <% end %>
         </div>
