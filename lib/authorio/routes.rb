@@ -1,5 +1,3 @@
-require 'byebug'
-
 module ActionDispatch::Routing
 	class Mapper
 
