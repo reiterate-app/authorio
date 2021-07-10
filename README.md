@@ -10,7 +10,7 @@ Authorio allows you to create a truly federated authentication setup, using your
 
 ## Installation
 
-### Add the Authorio Gem to your bundle
+### 1. Add the Authorio Gem to your bundle
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -22,12 +22,12 @@ And then execute:
 $ bundle
 ```
 
-### Install Authorio config files
+### 2. Install Authorio config files
 ```bash
 $ rails generate authorio:install
 ```
 
-### Install Authorio migrations
+### 3. Install Authorio migrations
 Authorio needs to add a couple tables to your app's database in order to store (hashed) passwords and access tokens.
 You will need to install the migrations and then run them to add these tables
 ```bash
@@ -41,13 +41,13 @@ $ rails db:migrate
 == 20210703002654 CreateAuthorioRequests: migrated (0.0041s) ==================
 ```
 
-### Install Authorio routes
+### 4. Install Authorio routes
 Add the following line somewhere inside the `Rails.application.routes.draw do` block in your `config/routes.rb` file
 ```ruby
 authorio_routes
 ```
 
-### Add the Indieauth tags
+### 5. Add the Indieauth tags
 Somewhere on your home page, add the following to your view template:
 ```erb
 <%= indieauth_tag %>
@@ -57,7 +57,7 @@ This part of the protocol will tell the IndieAuth client where to redirect for a
 you should only place this tag on your home page, and not in a layout that will put it on every page on your site.
 (It won't hurt anything but it's redundant to have it in multiple locations)
 
-### Set your initial password
+### 6. Set your initial password
 By default, Authorio uses a simple password to authenticate you. This password is hashed and stored in your app
 database, which presumably you control.
 
@@ -72,6 +72,13 @@ Confirm password:
 Password set
 ```
 
+### 7. Precompile assets
+
+Authorio has some of its own assets which, if you're running in a production environment, will need to be precompiled
+like your existing assets. Re-run your normal precompilation step to ensure Authorio's assets are in your asset pipeline
+```bash
+$ rails assets:precompile
+```
 Now restart your rails app, and you should be all set!
 
 ## Usage

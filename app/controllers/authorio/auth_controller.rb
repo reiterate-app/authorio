@@ -3,6 +3,8 @@ module Authorio
     require 'uri'
     require 'digest'
 
+    protect_from_forgery except: [:send_profile, :issue_token, :authorize_user]
+
     def authorization_interface
       p = auth_req_params
 
@@ -35,7 +37,8 @@ module Authorio
       user = User.find_by! profile_path: URI(p[:url]).path
       auth_req = Request.find_by! client: p[:client], authorio_user: user
       if user.authenticate(p[:password])
-        redirect_to auth_req.redirect_uri, code: auth_req.code, state: session[:state]
+        params = { code: auth_req.code, state: session[:state] }
+        redirect_to "#{auth_req.redirect_uri}?#{params.to_query}"
       else
         flash.now[:alert] = "Incorrect password. Try again."
         redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
