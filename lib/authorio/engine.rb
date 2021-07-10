@@ -6,5 +6,9 @@ module Authorio
 			ActionController::Base.send :include, Authorio::Helpers
 		end
 
+		initializer "authorio.assets.precompile" do |app|
+			app.config.assets.precompile += ['auth.css']
+		end
+
   end
 end
