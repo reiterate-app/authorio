@@ -43,30 +43,27 @@ module Authorio
     end
 
     def send_profile
-      req = Request.find_by code: params[:code]
-
-      render invalid_grant and return if req.nil?
-      req.delete
-      render invalid_grant and return if invalid_request?(req) || code_challenge_failed?
-
-      render json: { 'me': user_url(req.authorio_user) }
+      begin
+        render json: { 'me': user_url(validate_request.authorio_user) }
+      rescue Authorio::Exceptions::InvalidGrant
+        render invalid_grant
+      end
     end
 
     def issue_token
-      req = Request.find_by code: params[:code]
-
-      render invalid_grant and return if req.nil?
-      req.delete
-      render invalid_grant and return if invalid_request?(req) || code_challenge_failed?
-      render invalid_grant and return unless req.scope
-
-      token = Token.create(authorio_user: req.authorio_user, scope: req.scope, client: req.client)
-      render json: {
-        'me': user_url(req.authorio_user),
-        'access_token': token.auth_token,
-        'scope': req.scope,
-        'token_type': 'Bearer'
-      }
+      begin
+        req = validate_request
+        raise Authorio::Exceptions::InvalidGrant.new if req.scope.blank?
+        token = Token.create(authorio_user: req.authorio_user, scope: req.scope, client: req.client)
+        render json: {
+          'me': user_url(req.authorio_user),
+          'access_token': token.auth_token,
+          'scope': req.scope,
+          'token_type': 'Bearer'
+        }
+      rescue Authorio::Exceptions::InvalidGrant
+        render invalid_grant
+      end
     end
 
     def verify_token
@@ -114,6 +111,14 @@ module Authorio
       req.redirect_uri != params[:redirect_uri] \
         || req.client != params[:client_id] \
         || req.created_at < Time.now - 10.minutes
+    end
+
+    def validate_request
+      req = Request.find_by code: params[:code]
+      raise Authorio::Exceptions::InvalidGrant.new if req.nil?
+      req.delete
+      raise Authorio::Exceptions::InvalidGrant.new if invalid_request?(req) || code_challenge_failed?
+      req
     end
 
     def bearer_token

@@ -1,13 +1,5 @@
 module Authorio
-	class ClientMismatch < RuntimeError
-	end
-
-	class CodeChallengeMismatch < RuntimeError
-	end
-
-	class AuthParameterMismatch < RuntimeError
-	end
-
-	class StaleRequest < RuntimeError
+	module Exceptions
+		class InvalidGrant < RuntimeError; end
 	end
 end
