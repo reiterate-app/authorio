@@ -7,7 +7,7 @@ module Authorio
 		end
 
 		initializer "authorio.assets.precompile" do |app|
-			app.config.assets.precompile += ['auth.css']
+			app.config.assets.precompile += %w( authorio/auth.css )
 		end
 
   end
