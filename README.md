@@ -83,7 +83,7 @@ Now restart your rails app, and you should be all set!
 
 ## Usage
 
-To test your authentication endpoint, find an IndieAuth client you can log in to. A simple test is at [IndieWebify.Me](indiewebify.me). Enter your site's URL in the Web Sign In and click Test.
+To test your authentication endpoint, find an IndieAuth client you can log in to. A simple test is at [Pin13](pin13.net/login). Enter your site's URL and click Sign In.
 
 You should be then be redirected back to your own site and the Authorio
 login UI  
