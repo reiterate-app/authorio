@@ -10,7 +10,8 @@ module Authorio
     end
 
     def indieauth_tag
-      %Q[<link rel="authorization_endpoint" href="#{URI.join(root_url, Authorio.authorization_path)}">].html_safe
+      %Q[<link rel="authorization_endpoint" href="#{URI.join(root_url, Authorio.authorization_path)}">
+        <link rel="token_endpoint" href="#{URI.join(root_url, Authorio.token_path)}">].html_safe
     end
   end
 end

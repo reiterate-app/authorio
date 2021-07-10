@@ -20,4 +20,8 @@ module Authorio
 	def self.authorization_path
 		return [Authorio.configuration.mount_point, Authorio.configuration.authorization_endpoint].join("/")
 	end
+
+	def self.token_path
+		return [Authorio.configuration.mount_point, Authorio.configuration.token_endpoint].join("/")
+	end
 end

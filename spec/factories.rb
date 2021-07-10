@@ -10,4 +10,10 @@ FactoryBot.define do
 		client { 'https://example.net/' }
 		authorio_user { association :user }
 	end
+
+	factory :token, class: Authorio::Token do
+		authorio_user_id { 1 }
+		client { 'https://example.net/' }
+		scope { 'create update' }
+	end
 end

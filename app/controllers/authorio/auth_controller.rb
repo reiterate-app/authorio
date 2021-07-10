@@ -42,21 +42,41 @@ module Authorio
       end
     end
 
-    def verify_code
-      if session[:code_challenge]
-        sha256 = Digest::SHA256.hexdigest params[:code_verifier]
-        base64 = Base64.urlsafe_encode64 sha256
-        render invalid_grant and return if base64 != session[:code_challenge]
-      end
-
+    def send_profile
       req = Request.find_by code: params[:code]
+
       render invalid_grant and return if req.nil?
       req.delete
-      render invalid_grant and return \
-        if req.redirect_uri != params[:redirect_uri] || req.client != params[:client_id] \
-        || req.created_at < Time.now - 10.minutes
+      render invalid_grant and return if invalid_request?(req) || code_challenge_failed?
 
       render json: { 'me': user_url(req.authorio_user) }
+    end
+
+    def issue_token
+      req = Request.find_by code: params[:code]
+
+      render invalid_grant and return if req.nil?
+      req.delete
+      render invalid_grant and return if invalid_request?(req) || code_challenge_failed?
+      render invalid_grant and return unless req.scope
+
+      token = Token.create(authorio_user: req.authorio_user, scope: req.scope, client: req.client)
+      render json: {
+        'me': user_url(req.authorio_user),
+        'access_token': token.auth_token,
+        'scope': req.scope,
+        'token_type': 'Bearer'
+      }
+    end
+
+    def verify_token
+      token = Token.find_by auth_token: bearer_token
+      head :bad_request and return if token.nil?
+      render json: {
+        'me': user_url(token.authorio_user),
+        'client_id': token.client,
+        'scope': 'token.scope'
+      }
     end
 
     private
@@ -81,5 +101,26 @@ module Authorio
     def invalid_grant
       { json: { 'error': 'invalid_grant' }, status: :bad_request }
     end
+
+    def code_challenge_failed?
+      # For now, if original request did not have code challenge, then we pass by default
+      return false if session[:code_challenge].nil?
+      sha256 = Digest::SHA256.hexdigest params[:code_verifier]
+      base64 = Base64.urlsafe_encode64 sha256
+      return base64 != session[:code_challenge]
+    end
+
+    def invalid_request?(req)
+      req.redirect_uri != params[:redirect_uri] \
+        || req.client != params[:client_id] \
+        || req.created_at < Time.now - 10.minutes
+    end
+
+    def bearer_token
+      bearer = /^Bearer /
+      header = request.headers['Authorization']
+      header.gsub(bearer, '') if header && header.match(bearer)
+    end
+
   end
 end

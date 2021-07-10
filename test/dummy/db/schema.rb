@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_27_230416) do
+ActiveRecord::Schema.define(version: 2021_07_07_230416) do
 
   create_table "authorio_requests", force: :cascade do |t|
     t.string "code"
@@ -18,11 +18,20 @@ ActiveRecord::Schema.define(version: 2021_06_27_230416) do
     t.string "client"
     t.string "scope"
     t.integer "authorio_user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["authorio_user_id"], name: "index_authorio_requests_on_authorio_user_id"
+  end
+
+  create_table "authorio_tokens", force: :cascade do |t|
+    t.string "client"
+    t.string "scope"
+    t.integer "authorio_user_id", null: false
     t.string "auth_token"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["auth_token"], name: "index_authorio_requests_on_auth_token", unique: true
-    t.index ["authorio_user_id"], name: "index_authorio_requests_on_authorio_user_id"
+    t.index ["auth_token"], name: "index_authorio_tokens_on_auth_token", unique: true
+    t.index ["authorio_user_id"], name: "index_authorio_tokens_on_authorio_user_id"
   end
 
   create_table "authorio_users", force: :cascade do |t|
@@ -34,4 +43,5 @@ ActiveRecord::Schema.define(version: 2021_06_27_230416) do
   end
 
   add_foreign_key "authorio_requests", "authorio_users"
+  add_foreign_key "authorio_tokens", "authorio_users"
 end
