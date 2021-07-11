@@ -29,4 +29,10 @@ RSpec.describe "Token Exchange", type: :request do
     expect(response).to be_successful
     expect(json).to have_key('me')
   end
+
+  it "rejects invalid token" do
+    get "/authorio/token", params: nil, headers: { 'Authorization': "Bearer hAck3dT0k3n" }
+    
+    expect(response).to have_http_status :bad_request
+  end
 end

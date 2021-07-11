@@ -70,13 +70,14 @@ module Authorio
     end
 
     def verify_token
-      token = Token.find_by auth_token: bearer_token
-      head :bad_request and return if token.nil?
+      token = Token.find_by! auth_token: bearer_token
       render json: {
         'me': user_url(token.authorio_user),
         'client_id': token.client,
         'scope': 'token.scope'
       }
+      rescue ActiveRecord::RecordNotFound
+        head :bad_request
     end
 
     private
