@@ -9,3 +9,4 @@
 /test/dummy/tmp/
 .byebug_history
 /vendor/
+authorio-*.gem

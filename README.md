@@ -34,12 +34,17 @@ You will need to install the migrations and then run them to add these tables
 $ rails authorio:install:migrations
 Copied migration 20210703002653_create_authorio_users.authorio.rb from authorio
 Copied migration 20210703002654_create_authorio_requests.authorio.rb from authorio
+Copied migration 20210710145519_create_authorio_tokens.authorio.rb from authorio
+
 $ rails db:migrate
 ...
 == 20210703002653 CreateAuthorioUsers: migrated (0.0038s) =====================
 ...
 == 20210703002654 CreateAuthorioRequests: migrated (0.0041s) ==================
+...
+== 20210710145519 CreateAuthorioTokens: migrated (0.0037s) ====================
 ```
+
 
 ### 4. Install Authorio routes
 Add the following line somewhere inside the `Rails.application.routes.draw do` block in your `config/routes.rb` file
@@ -83,14 +88,28 @@ Now restart your rails app, and you should be all set!
 
 ## Usage
 
-To test your authentication endpoint, find an IndieAuth client you can log in to. A simple test is at [Pin13](pin13.net/login). Enter your site's URL and click Sign In.
+To test your authentication endpoint, find an IndieAuth client you can log in to. A simple test is to try and login
+to the [IndieWeb.org website](https://indieweb.org)
 
-You should be then be redirected back to your own site and the Authorio
-login UI  
+- From the home page, click on *Log In* in the upper right, or visit the [login page](https://sso.indieweb.org/login?url=https%3A%2F%2Findieweb.org%2FMain_Page) directly.
+- Enter your site's URL (or if you put the indieauth tag on a page other than your home page, enter that URL)
+- You should be then be redirected back to your own site and the Authorio login UI
+<p align="center">
 <img src="./auth-ui.png" width="400">
+</p>
 
-Enter the password you set up when you installed Authorio. This should redirect you back to the client where you
+- Enter the password you set up when you installed Authorio. This should redirect you back to the client where you
 will be logged in!
+
+## Configuration
+
+When you installed Authorio it placed a config file in `config/initializers/authorio.rb`. If you want to change
+one of the defaults you can uncomment it and specify it here.
+
+### TODO
+
+- [ ] Customizing the authentication view/UI
+- [ ] Customizing the authentication method
 
 ## Contributing
 Send pull requests to [Authorio on GitHub](https://github.com/reiterate-app/authorio)
