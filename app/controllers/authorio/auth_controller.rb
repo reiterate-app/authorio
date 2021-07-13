@@ -7,14 +7,9 @@ module Authorio
 
     def authorization_interface
       p = auth_req_params
+      p[:me] ||= "#{host_with_protocol}/"
 
-      path = if p[:me]
-        URI(p[:me]).path
-      else
-        '/'
-      end
-
-      user = User.find_by! profile_path: path
+      user = User.find_by! profile_path: URI(p[:me]).path
       @user_url = p[:me] || user_url(user)
 
       # If there are any old requests from this (client, user), delete them now
@@ -30,6 +25,10 @@ module Authorio
       auth_request.save
       session[:state] = p[:state]
       session[:code_challenge] = p[:code_challenge]
+
+    rescue ActiveRecord::RecordNotFound
+      flash.now[:alert] = "Invalid user"
+      redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
     end
 
     def authorize_user
@@ -43,6 +42,9 @@ module Authorio
         flash.now[:alert] = "Incorrect password. Try again."
         redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
       end
+    rescue ActiveRecord::RecordNotFound
+      flash.now[:alert] = "Invlaid user"
+      redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
     end
 
     def send_profile
@@ -95,8 +97,12 @@ module Authorio
       params.permit(:password, :url, :client)
     end
 
+    def host_with_protocol
+      "#{request.scheme}://#{request.host}"
+    end
+
     def user_url(user)
-      "#{request.scheme}://#{request.host}#{user.profile_path}"
+      "#{host_with_protocol}#{user.profile_path}"
     end
 
     def invalid_grant

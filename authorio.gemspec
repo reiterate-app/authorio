@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.email       = ["rattroupe@reiterate-app.com"]
   spec.homepage    = "https://rubygems.org/gems/authorio"
   spec.summary     = "Indieauth Authentication endpoint for Rails"
-  spec.description = "Rails engine to add IndieAuth authentication endpoiont functionality"
+  spec.description = "Rails engine to add IndieAuth authentication endpoint functionality"
   spec.license     = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
@@ -21,9 +21,9 @@ Gem::Specification.new do |spec|
   spec.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
   spec.add_dependency "rails", "~> 6.1.3", ">= 6.1.3.2"
-  spec.add_dependency "bcrypt"
-  spec.add_development_dependency "factory_bot_rails"
-  spec.add_development_dependency "rspec"
-  spec.add_development_dependency "rspec-rails"
-  spec.add_development_dependency "byebug"
+  spec.add_dependency "bcrypt", ">= 3.0"
+  spec.add_development_dependency "factory_bot_rails", ">= 6.0"
+  spec.add_development_dependency "rspec", ">= 3.0"
+  spec.add_development_dependency "rspec-rails", ">= 5.0"
+  spec.add_development_dependency "byebug", ">= 11.0"
 end

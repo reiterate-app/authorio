@@ -21,8 +21,8 @@ RSpec.describe "Requests", type: :request do
 
   it "requires valid user URL" do
     params[:me] = 'http://localhost:3000/foo'
-    expect { get "/authorio/auth", params: params }.
-      to raise_error ActiveRecord::RecordNotFound
+    get "/authorio/auth", params: params
+    expect(flash[:alert]).to include "Invalid user"
   end
 
   it "flashes message for incorrect password" do
@@ -33,7 +33,7 @@ RSpec.describe "Requests", type: :request do
 
   it "redirects on successful authentication" do
     post "/authorio/authorize_user", params: post_params
-    expect(response).to redirect_to client_redirect_uri
+    expect(response).to redirect_to %r(\A#{client_redirect_uri})
   end
 
   it "verifies correct code" do
