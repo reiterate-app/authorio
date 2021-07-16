@@ -43,7 +43,7 @@ module Authorio
         redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
       end
     rescue ActiveRecord::RecordNotFound
-      flash.now[:alert] = "Invlaid user"
+      flash.now[:alert] = "Invalid user"
       redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
     end
 
