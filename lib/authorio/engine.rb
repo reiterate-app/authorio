@@ -4,7 +4,7 @@ module Authorio
 
 		initializer "authorio.load_helpers" do |app|
 			Rails.application.reloader.to_prepare do
-				ActionController::Base.send :include, Authorio::Helpers
+				ActionView::Base.send :include, Authorio::TagHelper
 			end
 		end
 

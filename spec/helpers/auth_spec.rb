@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'byebug'
 
 RSpec.describe "Helpers", :type => :helper do
   describe "indieauth_tag" do
