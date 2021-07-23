@@ -12,4 +12,7 @@ Authorio.configure do |config|
 
 	# The path for token requests
 	# config.token_endpoint = "token"
+
+	# How long tokens will last before expiring
+	# config.token_expiration = 4.weeks
 end

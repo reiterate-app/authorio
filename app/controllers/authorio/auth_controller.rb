@@ -61,6 +61,7 @@ module Authorio
         'me': user_url(req.authorio_user),
         'access_token': token.auth_token,
         'scope': req.scope,
+        'expires_in': Authorio.configuration.token_expiration,
         'token_type': 'Bearer'
       }
     rescue Authorio::Exceptions::InvalidGrant
@@ -69,11 +70,16 @@ module Authorio
 
     def verify_token
       token = Token.find_by! auth_token: bearer_token
-      render json: {
-        'me': user_url(token.authorio_user),
-        'client_id': token.client,
-        'scope': 'token.scope'
-      }
+      if token.expired?
+        token.delete
+        render token_expired
+      else
+        render json: {
+          'me': user_url(token.authorio_user),
+          'client_id': token.client,
+          'scope': 'token.scope'
+        }
+      end
     rescue ActiveRecord::RecordNotFound
       head :bad_request
     end
@@ -103,6 +109,10 @@ module Authorio
 
     def invalid_grant
       { json: { 'error': 'invalid_grant' }, status: :bad_request }
+    end
+
+    def token_expired
+      { json: {'error': 'invalid_token', 'error_message': 'The access token has expired' }, status: :unauthorized }
     end
 
     def code_challenge_failed?
