@@ -48,27 +48,23 @@ module Authorio
     end
 
     def send_profile
-      begin
-        render json: { 'me': user_url(validate_request.authorio_user) }
-      rescue Authorio::Exceptions::InvalidGrant
-        render invalid_grant
-      end
+      render json: { 'me': user_url(validate_request.authorio_user) }
+    rescue Authorio::Exceptions::InvalidGrant
+      render invalid_grant
     end
 
     def issue_token
-      begin
-        req = validate_request
-        raise Authorio::Exceptions::InvalidGrant.new if req.scope.blank?
-        token = Token.create(authorio_user: req.authorio_user, scope: req.scope, client: req.client)
-        render json: {
-          'me': user_url(req.authorio_user),
-          'access_token': token.auth_token,
-          'scope': req.scope,
-          'token_type': 'Bearer'
-        }
-      rescue Authorio::Exceptions::InvalidGrant
-        render invalid_grant
-      end
+      req = validate_request
+      raise Authorio::Exceptions::InvalidGrant.new if req.scope.blank?
+      token = Token.create(authorio_user: req.authorio_user, scope: req.scope, client: req.client)
+      render json: {
+        'me': user_url(req.authorio_user),
+        'access_token': token.auth_token,
+        'scope': req.scope,
+        'token_type': 'Bearer'
+      }
+    rescue Authorio::Exceptions::InvalidGrant
+      render invalid_grant
     end
 
     def verify_token
@@ -78,8 +74,8 @@ module Authorio
         'client_id': token.client,
         'scope': 'token.scope'
       }
-      rescue ActiveRecord::RecordNotFound
-        head :bad_request
+    rescue ActiveRecord::RecordNotFound
+      head :bad_request
     end
 
     private
