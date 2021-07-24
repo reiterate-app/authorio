@@ -25,9 +25,10 @@ RSpec.shared_examples "Endpoint parameters" do |p|
 
   let(:post_params) {
     {
-      client: 'https://example.net/',
-      url: 'http://example.com/',
-      password: 'password'
+      user: {
+        url: 'http://example.com/',
+        password: 'password'
+      }
     }
   }
 

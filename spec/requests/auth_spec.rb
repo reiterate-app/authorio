@@ -26,13 +26,15 @@ RSpec.describe "Requests", type: :request do
   end
 
   it "flashes message for incorrect password" do
-    post_params[:password] = 'wrong'
-    post "/authorio/authorize_user", params: post_params
+    get "/authorio/auth", params: params
+    post_params[:user][:password] = 'wrong'
+    post "/authorio/user", params: post_params
     expect(flash[:alert]).to include("Incorrect password")
   end
 
   it "redirects on successful authentication" do
-    post "/authorio/authorize_user", params: post_params
+    get "/authorio/auth", params: params
+    post "/authorio/user", params: post_params
     expect(response).to redirect_to %r(\A#{client_redirect_uri})
   end
 

@@ -2,39 +2,40 @@ module Authorio
   class AuthController < ActionController::Base
     require 'uri'
     require 'digest'
+    layout 'authorio/main'
 
-    protect_from_forgery except: [:send_profile, :issue_token, :authorize_user]
+    # These API-only endpoints are protected by code challenge and do not need CSRF protextion
+    protect_from_forgery with: :exception, except: [:send_profile, :issue_token]
 
     def authorization_interface
       p = auth_req_params
       p[:me] ||= "#{host_with_protocol}/"
-
-      user = User.find_by! profile_path: URI(p[:me]).path
-      @user_url = p[:me] || user_url(user)
+      @user = User.find_by! profile_path: URI(p[:me]).path
 
       # If there are any old requests from this (client, user), delete them now
-      Request.where(authorio_user: user, client: p[:client_id]).delete_all
+      Request.where(authorio_user: @user, client: p[:client_id]).delete_all
 
       auth_request = Request.new.tap do |req|
         req.code = SecureRandom.hex(20)
         req.redirect_uri = p[:redirect_uri]
         req.client = p[:client_id] # IndieAuth client_id conflicts with Rails' _id foreign key convention
         req.scope = p[:scope]
-        req.authorio_user = user
+        req.authorio_user = @user
       end
       auth_request.save
       session[:state] = p[:state]
       session[:code_challenge] = p[:code_challenge]
+      session[:client_id] = p[:client_id]
 
     rescue ActiveRecord::RecordNotFound
-      flash.now[:alert] = "Invalid user"
+      flash[:alert] = "Invalid user"
       redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
     end
 
     def authorize_user
       p = auth_user_params
       user = User.find_by! profile_path: URI(p[:url]).path
-      auth_req = Request.find_by! client: p[:client], authorio_user: user
+      auth_req = Request.find_by! client: session[:client_id], authorio_user: user
       if user.authenticate(p[:password])
         params = { code: auth_req.code, state: session[:state] }
         redirect_to "#{auth_req.redirect_uri}?#{params.to_query}"
@@ -96,7 +97,7 @@ module Authorio
     end
 
     def auth_user_params
-      params.permit(:password, :url, :client)
+      params.require(:user).permit(:password, :url)
     end
 
     def host_with_protocol
@@ -142,6 +143,5 @@ module Authorio
       header = request.headers['Authorization']
       header.gsub(bearer, '') if header && header.match(bearer)
     end
-
   end
 end

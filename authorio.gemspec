@@ -5,7 +5,6 @@ Gem::Specification.new do |spec|
   spec.version     = Authorio::VERSION
   spec.authors     = ["Michael Meckler"]
   spec.email       = ["rattroupe@reiterate-app.com"]
-  spec.homepage    = "https://rubygems.org/gems/authorio"
   spec.summary     = "Indieauth Authentication endpoint for Rails"
   spec.description = "Rails engine to add IndieAuth authentication endpoint functionality"
   spec.license     = "MIT"
@@ -14,7 +13,6 @@ Gem::Specification.new do |spec|
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   # spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
 
-  spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/reiterate-app/authorio"
   # spec.metadata["changelog_uri"] = "https://github.com/reiterate-app/authorio/blob/master/CHANGELOG.md"
 
