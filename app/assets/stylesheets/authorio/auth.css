@@ -39,3 +39,17 @@ div.authorio-auth {
 .authorio-auth input.btn {
 	margin-top: 2em;
 }
+
+.auth-btn-row {
+	margin: 1em;
+	width: 90%;
+}
+
+.authorio-auth .auth-btn-row .auth-btn {
+	width: 45%;
+	margin: 0.1em;
+}
+
+.authorio-auth .auth-btn-row .auth-btn:last-child {
+	float: right;
+}

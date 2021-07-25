@@ -14,7 +14,10 @@
         <%= form.text_field(:url, value: params[:me], readonly: true) %>
         <%= form.label(:password, "Password") %>
         <%= form.password_field(:password, autofocus: true) %>
-        <%= form.submit("Sign in", class: 'btn btn-success') %>
+        <div class='auth-btn-row'>
+          <%= form.submit("Cancel", class: 'btn btn-default auth-btn') %>
+          <%= form.submit("Sign in", class: 'btn btn-success auth-btn') %>
+        </div>
       <% end %>
     </div>
     <div class="col-md-4"></div>

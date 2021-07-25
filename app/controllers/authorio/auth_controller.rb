@@ -34,6 +34,11 @@ module Authorio
 
     def authorize_user
       p = auth_user_params
+
+      if params[:commit] == "Cancel"
+        redirect_to session[:client_id] and return
+      end
+
       user = User.find_by! profile_path: URI(p[:url]).path
       auth_req = Request.find_by! client: session[:client_id], authorio_user: user
       if user.authenticate(p[:password])
