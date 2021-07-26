@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_23_161041) do
+ActiveRecord::Schema.define(version: 2021_07_26_164625) do
 
   create_table "authorio_requests", force: :cascade do |t|
     t.string "code"
@@ -21,6 +21,16 @@ ActiveRecord::Schema.define(version: 2021_07_23_161041) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["authorio_user_id"], name: "index_authorio_requests_on_authorio_user_id"
+  end
+
+  create_table "authorio_sessions", force: :cascade do |t|
+    t.integer "authorio_user_id", null: false
+    t.string "selector"
+    t.string "hashed_token"
+    t.datetime "expires_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["authorio_user_id"], name: "index_authorio_sessions_on_authorio_user_id"
   end
 
   create_table "authorio_tokens", force: :cascade do |t|
@@ -44,5 +54,6 @@ ActiveRecord::Schema.define(version: 2021_07_23_161041) do
   end
 
   add_foreign_key "authorio_requests", "authorio_users"
+  add_foreign_key "authorio_sessions", "authorio_users"
   add_foreign_key "authorio_tokens", "authorio_users"
 end

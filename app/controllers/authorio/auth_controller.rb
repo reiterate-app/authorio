@@ -7,6 +7,12 @@ module Authorio
     # These API-only endpoints are protected by code challenge and do not need CSRF protextion
     protect_from_forgery with: :exception, except: [:send_profile, :issue_token]
 
+    rescue_from 'Authorio::Exceptions::SessionReplayAttack' do |exception|
+      redirect_back_with_error "Session Replay attack detected. This has been logged."
+      logger.info "Session replay attack detected!"
+      Authorio::Session.where(user: exception.session.user).delete_all
+    end
+
     def authorization_interface
       p = auth_req_params
       p[:me] ||= "#{host_with_protocol}/"
@@ -26,12 +32,11 @@ module Authorio
       session[:state] = p[:state]
       session[:code_challenge] = p[:code_challenge]
       session[:client_id] = p[:client_id]
-      @user_logged_in_locally = user_session_valid?(@user.profile_path)
-      @rememberable = Authorio.configuration.local_session_lifetime && !user_session_valid?(@user.profile_path)
+      @user_logged_in_locally = !user_session.nil?
+      @rememberable = Authorio.configuration.local_session_lifetime && !@user_logged_in_locally
 
     rescue ActiveRecord::RecordNotFound
-      flash[:alert] = "Invalid user"
-      redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
+      redirect_back_with_error "Invalid user"
     end
 
     def authorize_user
@@ -41,21 +46,22 @@ module Authorio
         redirect_to session[:client_id] and return
       end
 
-      user = User.find_by! profile_path: URI(p[:url]).path
-      auth_req = Request.find_by! client: session[:client_id], authorio_user: user
-      if user_session_valid?(user.profile_path) || user.authenticate(p[:password])
-        if Authorio.configuration.local_session_lifetime && !user_session_valid?(user.profile_path) && p[:remember_me]
-          cookies.encrypted[:user_path] = { value: user.profile_path, expires: Authorio.configuration.local_session_lifetime }
-        end
-        params = { code: auth_req.code, state: session[:state] }
-        redirect_to "#{auth_req.redirect_uri}?#{params.to_query}"
-      else
-        flash.now[:alert] = "Incorrect password. Try again."
-        redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
+      user = authenticate_user_from_session_or_password
+      if p[:remember_me]
+        cookies.encrypted[:user] = {
+          value: Authorio::Session.create(authorio_user: user).as_cookie,
+          expires: Authorio.configuration.local_session_lifetime
+        }
       end
+
+      auth_req = Request.find_by! client: session[:client_id], authorio_user: user
+      params = { code: auth_req.code, state: session[:state] }
+      redirect_to "#{auth_req.redirect_uri}?#{params.to_query}"
+
     rescue ActiveRecord::RecordNotFound
-      flash.now[:alert] = "Invalid user"
-      redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
+      redirect_back_with_error "Invalid user"
+    rescue Authorio::Exceptions::InvalidPassword
+      redirect_back_with_error "Incorrect password. Try again."
     end
 
     def send_profile
@@ -154,8 +160,25 @@ module Authorio
       header.gsub(bearer, '') if header && header.match(bearer)
     end
 
-    def user_session_valid?(user_path)
-      cookies.encrypted[:user_path] == user_path
+    def user_session
+      cookie = cookies.encrypted[:user] and Session.find_by_cookie(cookie)
     end
+
+    def redirect_back_with_error(error)
+      flash.now[:alert] = error
+      redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
+    end
+
+    def authenticate_user_from_session_or_password
+      session = user_session
+      if session
+        return session.authorio_user
+      else
+        user = User.find_by! profile_path: URI(auth_user_params[:url]).path
+        raise Authorio::Exceptions::InvalidPassword unless user.authenticate(auth_user_params[:password])
+        return user
+      end
+    end
+
   end
 end
