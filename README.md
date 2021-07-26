@@ -106,6 +106,31 @@ will be logged in!
 When you installed Authorio it placed a config file in `config/initializers/authorio.rb`. If you want to change
 one of the defaults you can uncomment it and specify it here.
 
+### Mount Point
+
+Most Rails engines are mounted via `mount Authorio::Engine, at: mount_point`. But Authorio needs to know its own
+mount point (to specify its url in the header tag) so you specify the mount point here. The default `authorio`
+should work for everyone.
+
+### Authorization and Token Endpoint
+
+These endpointd are given to servers via discovery. The default values should suffice.
+
+### Token Expiration
+
+If a client asks for an authentication token, the token will be valid for this length of time, after which
+you will have to re-authenticate. Longer-lasting
+tokens can possibly be a security risk. Default is 4 weeks.
+
+### Local Session Lifetime
+
+Setting this to a time interval will enable you to authenticate without typing in your password. It enables a
+"remember me" chekbox on the authentication form. If you check that, then enter your
+password once, then your session will be saved in a cookie, and any time you are asked to authenticate again,
+you can just click "Sign In" without your password. It can be a security risk if someone else has access to
+the machine you are using to login with (eg your laptop). Obviously you don't want to check "remember me"
+on a public-access computer. Default is *nil* (disabled)
+
 ### TODO
 
 - [ ] Customizing the authentication view/UI

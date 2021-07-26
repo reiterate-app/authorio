@@ -26,6 +26,8 @@ module Authorio
       session[:state] = p[:state]
       session[:code_challenge] = p[:code_challenge]
       session[:client_id] = p[:client_id]
+      @user_logged_in_locally = user_session_valid?(@user.profile_path)
+      @rememberable = Authorio.configuration.local_session_lifetime && !user_session_valid?(@user.profile_path)
 
     rescue ActiveRecord::RecordNotFound
       flash[:alert] = "Invalid user"
@@ -41,7 +43,10 @@ module Authorio
 
       user = User.find_by! profile_path: URI(p[:url]).path
       auth_req = Request.find_by! client: session[:client_id], authorio_user: user
-      if user.authenticate(p[:password])
+      if user_session_valid?(user.profile_path) || user.authenticate(p[:password])
+        if Authorio.configuration.local_session_lifetime && !user_session_valid?(user.profile_path) && p[:remember_me]
+          cookies.encrypted[:user_path] = { value: user.profile_path, expires: Authorio.configuration.local_session_lifetime }
+        end
         params = { code: auth_req.code, state: session[:state] }
         redirect_to "#{auth_req.redirect_uri}?#{params.to_query}"
       else
@@ -102,7 +107,7 @@ module Authorio
     end
 
     def auth_user_params
-      params.require(:user).permit(:password, :url)
+      params.require(:user).permit(:password, :url, :remember_me)
     end
 
     def host_with_protocol
@@ -147,6 +152,10 @@ module Authorio
       bearer = /^Bearer /
       header = request.headers['Authorization']
       header.gsub(bearer, '') if header && header.match(bearer)
+    end
+
+    def user_session_valid?(user_path)
+      cookies.encrypted[:user_path] == user_path
     end
   end
 end

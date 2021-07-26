@@ -15,4 +15,10 @@ Authorio.configure do |config|
 
 	# How long tokens will last before expiring
 	# config.token_expiration = 4.weeks
+
+	# Enable local session lifetime to keep yourself "logged in" to your own server
+	# If set to eg:
+	#  config.local_session_lifetime = 30.days
+	# then you will only have to enter your password every 30 days. Default is off (nil)
+	# config.local_session_lifetime = nil
 end

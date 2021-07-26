@@ -27,7 +27,7 @@ div.authorio-auth {
 	margin-left:  1.2em;
 }
 
-.authorio-auth input {
+.authorio-auth input:not([type='checkbox']):not([type='submit']) {
 	margin: 0 1em 1em 1em;
 	width:  90%;
 }
@@ -52,4 +52,12 @@ div.authorio-auth {
 
 .authorio-auth .auth-btn-row .auth-btn:last-child {
 	float: right;
+}
+
+span.r-m {
+	font-weight: 200;
+}
+
+label.remember {
+	margin-top: -1em;
 }

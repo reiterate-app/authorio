@@ -84,4 +84,21 @@ RSpec.describe "Requests", type: :request do
     post "/authorio/auth", params: verify_params
     expect(response).to be_successful
   end
+
+  it "shows password field if there is no previous session" do
+    get "/authorio/auth", params: params
+    expect(response.body).to include %q(id="user_password")
+  end
+
+  it "hides password with valid session" do
+    Authorio.configuration.local_session_lifetime = 1.day
+    get "/authorio/auth", params: params
+    post_params[:user][:remember_me] = "1"
+    post "/authorio/users/1/authorize", params: post_params
+    get "/authorio/auth", params: params
+    expect(response.body).not_to include %q(id="user_password")
+    post_params[:user][:password] = '' # Should not need password
+    post "/authorio/users/1/authorize", params: post_params
+    expect(response).to redirect_to %r(\A#{client_redirect_uri})
+  end
 end

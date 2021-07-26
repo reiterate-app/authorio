@@ -17,6 +17,7 @@
 - Improved some Rails coding idioms
 - Cleaned up begin..raise..end blocks
 - Refactored layouts and views
+- Added local sessions. Enable in config and click "Remember me" to bypass password entry
 
 ## [v0.8.1](https://github.com/reiterate-app/authorio/tree/v0.8.1) (2021-07-13)
 
