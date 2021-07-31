@@ -13,41 +13,36 @@ module Authorio
       Authorio::Session.where(user: exception.session.user).delete_all
     end
 
+    # GET /auth
     def authorization_interface
-      p = auth_req_params
-      p[:me] ||= "#{host_with_protocol}/"
-      @user = User.find_by! profile_path: URI(p[:me]).path
+      %w(client_id redirect_uri state code_challenge).each do |param|
+        raise ::ActionController::ParameterMissing, param unless params[param].present?
+      end
+      @user = User.find_by_url! params[:me]
 
       # If there are any old requests from this (client, user), delete them now
-      Request.where(authorio_user: @user, client: p[:client_id]).delete_all
+      Request.where(authorio_user: @user, client: params[:client_id]).delete_all
 
-      auth_request = Request.new.tap do |req|
-        req.code = SecureRandom.hex(20)
-        req.redirect_uri = p[:redirect_uri]
-        req.client = p[:client_id] # IndieAuth client_id conflicts with Rails' _id foreign key convention
-        req.scope = p[:scope]
-        req.authorio_user = @user
-      end
-      auth_request.save
-      session[:state] = p[:state]
-      session[:code_challenge] = p[:code_challenge]
-      session[:client_id] = p[:client_id]
+      auth_request = Request.create(
+        code: SecureRandom.hex(20),
+        redirect_uri: params[:redirect_uri],
+        client: params[:client_id], # IndieAuth client_id conflicts with Rails' _id foreign key convention
+        scope: params[:scope],
+        authorio_user: @user
+        )
+      session.update request.parameters.slice(*%w(state client_id code_challenge))
       @user_logged_in_locally = !user_session.nil?
       @rememberable = Authorio.configuration.local_session_lifetime && !@user_logged_in_locally
-
     rescue ActiveRecord::RecordNotFound
       redirect_back_with_error "Invalid user"
     end
 
+    # POST /user/:id/authorize
     def authorize_user
-      p = auth_user_params
-
-      if params[:commit] == "Cancel"
-        redirect_to session[:client_id] and return
-      end
+      redirect_to session[:client_id] and return if params[:commit] == "Cancel"
 
       user = authenticate_user_from_session_or_password
-      if p[:remember_me]
+      if auth_user_params[:remember_me]
         cookies.encrypted[:user] = {
           value: Authorio::Session.create(authorio_user: user).as_cookie,
           expires: Authorio.configuration.local_session_lifetime
@@ -55,9 +50,8 @@ module Authorio
       end
 
       auth_req = Request.find_by! client: session[:client_id], authorio_user: user
-      params = { code: auth_req.code, state: session[:state] }
-      redirect_to "#{auth_req.redirect_uri}?#{params.to_query}"
-
+      redirect_params = { code: auth_req.code, state: session[:state] }
+      redirect_to "#{auth_req.redirect_uri}?#{redirect_params.to_query}"
     rescue ActiveRecord::RecordNotFound
       redirect_back_with_error "Invalid user"
     rescue Authorio::Exceptions::InvalidPassword
@@ -103,15 +97,6 @@ module Authorio
 
     private
 
-    def auth_req_params
-      %w(client_id redirect_uri state code_challenge).each do |param|
-        unless params.key?(param) && !params[param].empty?
-          raise ::ActionController::ParameterMissing.new(param)
-        end
-      end
-      params.permit(:response_type, :code_challenge, :code_challenge_method, :scope, :me, :redirect_uri, :client_id, :state)
-    end
-
     def auth_user_params
       params.require(:user).permit(:password, :url, :remember_me)
     end
@@ -142,8 +127,8 @@ module Authorio
 
     def invalid_request?(req)
       req.redirect_uri != params[:redirect_uri] \
-        || req.client != params[:client_id] \
-        || req.created_at < Time.now - 10.minutes
+      || req.client != params[:client_id] \
+      || req.created_at < Time.now - 10.minutes
     end
 
     def validate_request
