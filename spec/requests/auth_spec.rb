@@ -6,7 +6,8 @@ RSpec.describe "Requests", type: :request do
   include_examples "Endpoint parameters"
 
   it "requires all necessary params" do
-    expect { get "/authorio/auth" }.to raise_error ActionController::ParameterMissing
+    get "/authorio/auth" # without params
+    expect(response).to have_http_status :bad_request
   end
 
   before :each do

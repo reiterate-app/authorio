@@ -35,6 +35,8 @@ module Authorio
       @rememberable = Authorio.configuration.local_session_lifetime && !@user_logged_in_locally
     rescue ActiveRecord::RecordNotFound
       redirect_back_with_error "Invalid user"
+    rescue ActionController::ParameterMissing => error
+      render oauth_error "invalid_request", "missing parameter #{error}"
     end
 
     # POST /user/:id/authorize
@@ -60,13 +62,13 @@ module Authorio
 
     def send_profile
       render json: { 'me': user_url(validate_request.authorio_user) }
-    rescue Authorio::Exceptions::InvalidGrant
-      render invalid_grant
+    rescue Authorio::Exceptions::InvalidGrant => error
+      render oauth_error 'invalid_grant', error.message
     end
 
     def issue_token
       req = validate_request
-      raise Authorio::Exceptions::InvalidGrant.new if req.scope.blank?
+      raise Authorio::Exceptions::InvalidGrant, 'missing scope' if req.scope.blank?
       token = Token.create(authorio_user: req.authorio_user, scope: req.scope, client: req.client)
       render json: {
         'me': user_url(req.authorio_user),
@@ -75,8 +77,8 @@ module Authorio
         'expires_in': Authorio.configuration.token_expiration,
         'token_type': 'Bearer'
       }
-    rescue Authorio::Exceptions::InvalidGrant
-      render invalid_grant
+    rescue Authorio::Exceptions::InvalidGrant => error
+      render oauth_error, 'invalid_grant', error.message
     end
 
     def verify_token
@@ -109,8 +111,10 @@ module Authorio
       "#{host_with_protocol}#{user.profile_path}"
     end
 
-    def invalid_grant
-      { json: { 'error': 'invalid_grant' }, status: :bad_request }
+    def oauth_error(error, message=nil)
+      resp = { json: {'error': error} }
+      resp[:json]['error_message'] = message unless message.nil?
+      { json: resp, status: :bad_request }
     end
 
     def token_expired
@@ -133,9 +137,9 @@ module Authorio
 
     def validate_request
       req = Request.find_by code: params[:code]
-      raise Authorio::Exceptions::InvalidGrant.new if req.nil?
+      raise Authorio::Exceptions::InvalidGrant, "code not found" if req.nil?
       req.delete
-      raise Authorio::Exceptions::InvalidGrant.new if invalid_request?(req) || code_challenge_failed?
+      raise Authorio::Exceptions::InvalidGrant, "validation failed" if invalid_request?(req) || code_challenge_failed?
       req
     end
 
