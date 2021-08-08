@@ -1,0 +1,15 @@
+<%= stylesheet_link_tag "authorio/auth" %>
+<% content_for :title, "Authorio Local Login" %>
+
+<div class="container authorio-auth">
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 auth-panel">
+      <h3>Authorio</h3>
+      <div class="client-row">Local Login</div>
+      <%= render 'shared/login_form', target: session_path(@session),
+       user: @session.authorio_user, scopes: nil, cancel: false %>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>

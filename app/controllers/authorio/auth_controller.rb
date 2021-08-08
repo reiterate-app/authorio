@@ -1,8 +1,7 @@
 module Authorio
-  class AuthController < ActionController::Base
+  class AuthController < AuthorioController
     require 'uri'
     require 'digest'
-    layout 'authorio/main'
 
     # These API-only endpoints are protected by code challenge and do not need CSRF protextion
     protect_from_forgery with: :exception, except: [:send_profile, :issue_token]
@@ -12,6 +11,8 @@ module Authorio
       logger.info "Session replay attack detected!"
       Authorio::Session.where(user: exception.session.user).delete_all
     end
+
+    helper_method :user_scope_description
 
     # GET /auth
     def authorization_interface
@@ -31,8 +32,8 @@ module Authorio
         authorio_user: @user
         )
       session.update request.parameters.slice(*%w(state client_id code_challenge))
-      @user_logged_in_locally = !user_session.nil?
       @rememberable = Authorio.configuration.local_session_lifetime && !@user_logged_in_locally
+      @scope = params[:scope]&.split
     rescue ActiveRecord::RecordNotFound
       redirect_back_with_error "Invalid user"
     rescue ActionController::ParameterMissing => error
@@ -44,14 +45,10 @@ module Authorio
       redirect_to session[:client_id] and return if params[:commit] == "Cancel"
 
       user = authenticate_user_from_session_or_password
-      if auth_user_params[:remember_me]
-        cookies.encrypted[:user] = {
-          value: Authorio::Session.create(authorio_user: user).as_cookie,
-          expires: Authorio.configuration.local_session_lifetime
-        }
-      end
+      set_session_cookie(user) if auth_user_params[:remember_me]
 
       auth_req = Request.find_by! client: session[:client_id], authorio_user: user
+      auth_req.update_scope(scope_params[:scope]) if params.has_key? :scope
       redirect_params = { code: auth_req.code, state: session[:state] }
       redirect_to "#{auth_req.redirect_uri}?#{redirect_params.to_query}"
     rescue ActiveRecord::RecordNotFound
@@ -61,7 +58,8 @@ module Authorio
     end
 
     def send_profile
-      render json: { 'me': user_url(validate_request.authorio_user) }
+      request = validate_request
+      render json: profile(request)
     rescue Authorio::Exceptions::InvalidGrant => error
       render oauth_error 'invalid_grant', error.message
     end
@@ -71,12 +69,11 @@ module Authorio
       raise Authorio::Exceptions::InvalidGrant, 'missing scope' if req.scope.blank?
       token = Token.create(authorio_user: req.authorio_user, scope: req.scope, client: req.client)
       render json: {
-        'me': user_url(req.authorio_user),
         'access_token': token.auth_token,
         'scope': req.scope,
         'expires_in': Authorio.configuration.token_expiration,
         'token_type': 'Bearer'
-      }
+      }.merge(profile(req))
     rescue Authorio::Exceptions::InvalidGrant => error
       render oauth_error, 'invalid_grant', error.message
     end
@@ -99,16 +96,8 @@ module Authorio
 
     private
 
-    def auth_user_params
-      params.require(:user).permit(:password, :url, :remember_me)
-    end
-
-    def host_with_protocol
-      "#{request.scheme}://#{request.host}"
-    end
-
-    def user_url(user)
-      "#{host_with_protocol}#{user.profile_path}"
+    def scope_params
+      params.require(:scope).permit(scope: [])
     end
 
     def oauth_error(error, message=nil)
@@ -143,19 +132,28 @@ module Authorio
       req
     end
 
+    def profile(request)
+      profile = { me: user_url(request.authorio_user) }
+      if request.scope
+        scopes = request.scope.split
+        if scopes.include? 'profile'
+          profile['profile'] = {
+            name: request.authorio_user.full_name,
+            url: request.authorio_user.url,
+            photo: request.authorio_user.photo
+          }.compact
+          if scopes.include? 'email'
+            profile['profile']['email'] = request.authorio_user.email
+          end
+        end
+      end
+      profile
+    end
+
     def bearer_token
       bearer = /^Bearer /
       header = request.headers['Authorization']
       header.gsub(bearer, '') if header && header.match(bearer)
-    end
-
-    def user_session
-      cookie = cookies.encrypted[:user] and Session.find_by_cookie(cookie)
-    end
-
-    def redirect_back_with_error(error)
-      flash[:alert] = error
-      redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
     end
 
     def authenticate_user_from_session_or_password
@@ -167,6 +165,16 @@ module Authorio
         raise Authorio::Exceptions::InvalidPassword unless user.authenticate(auth_user_params[:password])
         return user
       end
+    end
+
+    ScopeDescriptions = {
+      'profile': 'View basic profile information',
+      'email': 'View your email address',
+      'offline_access': 'Keep you logged in permanently (until revoked)'
+    }
+
+    def user_scope_description(scope)
+      ScopeDescriptions.dig(scope.to_sym) || scope
     end
 
   end

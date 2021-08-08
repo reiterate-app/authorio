@@ -28,6 +28,9 @@ RSpec.shared_examples "Endpoint parameters" do |p|
       user: {
         url: 'http://example.com/',
         password: 'password'
+      },
+      scope: {
+        scope: []
       }
     }
   }

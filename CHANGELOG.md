@@ -1,6 +1,30 @@
 # Change Log
 
-## [v0.8.2](https://github.com/reiterate-app/authorio/tree/v0.8.1) (2021-07-24)
+## [v0.8.3](https://github.com/reiterate-app/authorio/tree/v0.8.3) (2021-08-07)
+
+This version requires migrations if yiou are upgrading from 0.8.2. Rerun `rails authorio:install:migrations` and
+`rails db:migrate`
+
+**Bugfixes**
+
+- Return HTTP error for invalid grant instead of raising exception
+
+**Enhancements**
+
+- Support for user profiles
+  * Visit authorio root to set up your profile
+- Support for profile and email scope
+  * If an authenticating client requests your profile, you can approve the request on the
+    login screen
+  * Uncheck the requested scopes to remain anonymous
+- Refactored session code. There are now two kinds of sessions, temporary (until window closes)
+  and permanent (remember-me)
+- Sessions controller to manage new session data
+- Refactored auth form
+- Added a top bar for logged in users
+- Added more descriptive error messages for auth workflow errors
+
+## [v0.8.2](https://github.com/reiterate-app/authorio/tree/v0.8.2) (2021-07-24)
 
 **Bugfixes**
 

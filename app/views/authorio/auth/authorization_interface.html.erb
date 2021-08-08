@@ -1,4 +1,3 @@
-<%= stylesheet_link_tag "authorio/auth" %>
 <% content_for :title, "Authorio Login" %>
 
 <div class="container authorio-auth">
@@ -7,26 +6,10 @@
     <div class="col-md-4 auth-panel">
       <h3>Authorio</h3>
       <div class="client-row">
-        Authenticating with <span class="client"><%= params[:client_id] %>
+        <span class="client"><%= params[:client_id] %></span> wants to authenticate
+        <% if @scope %>and also<% end %>
       </div>
-      <%= form_with(model: @user, url: authorize_user_path(@user), method: :post) do |form| %>
-        <%= form.label(:url, "User URL") %>
-        <%= form.text_field(:url, value: params[:me], readonly: true) %>
-        <% unless @user_logged_in_locally %>
-          <%= form.label(:password, "Password") %>
-          <%= form.password_field(:password, autofocus: true) %>
-          <% if @rememberable %>
-            <%= label_tag(:remember_me, class: 'remember') do %>
-              <%= form.check_box :remember_me %>
-              <span class='r-m'>Remember me for <%= distance_of_time_in_words Authorio.configuration.local_session_lifetime -%></span>
-            <% end %>
-          <% end %>
-        <% end %>
-        <div class='auth-btn-row'>
-          <%= form.submit("Cancel", class: 'btn btn-default auth-btn') %>
-          <%= form.submit("Sign in", class: 'btn btn-success auth-btn') %>
-        </div>
-      <% end %>
+      <%= render 'shared/login_form', target: authorize_user_path(@user), user: @user, scopes: @scope, cancel: true %>
     </div>
     <div class="col-md-4"></div>
   </div>

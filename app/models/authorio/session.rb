@@ -30,7 +30,7 @@ module Authorio
     end
     
     def expired?
-      return expires_at < Time.now
+      expires_at < Time.now
     end
 
     def as_cookie

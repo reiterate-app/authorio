@@ -136,6 +136,10 @@ on a public-access computer. Default is *nil* (disabled)
 - [ ] Customizing the authentication view/UI
 - [ ] Customizing the authentication method
 
+## User Profile
+
+You can set up your <a href="doc/profile.md">user profile</a> which can be sent to authenticating clients.
+
 ## Contributing
 Send pull requests to [Authorio on GitHub](https://github.com/reiterate-app/authorio)
 

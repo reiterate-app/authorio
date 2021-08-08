@@ -1,0 +1,25 @@
+<%= stylesheet_link_tag "authorio/auth" %>
+<% content_for :title, "Account Settings" %>
+
+<div class="container authorio-auth">
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 auth-panel">
+      <h3>Account Settings</h3>
+      <%= form_with model: @user do |form| %>
+        <%= form.label(:full_name, "Full Name") %>
+        <%= form.text_field(:full_name) %>
+        <%= form.label(:url, "URL") %>
+        <%= form.text_field(:url) %>
+        <%= form.label(:photo, "Photo URL") %>
+        <%= form.text_field(:photo) %>
+        <%= form.label(:email, "Email") %>
+        <%= form.text_field(:email) %>
+        <div class='auth-btn-row'>
+          <%= form.submit("Save Changes", class: 'btn btn-success auth-btn') %>
+        </div>
+      <% end -%>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>

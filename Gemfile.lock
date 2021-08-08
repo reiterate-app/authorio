@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    authorio (0.8.2)
+    authorio (0.8.3)
       bcrypt (~> 3.0)
       rails (~> 6.1.3, >= 6.1.3.2)
 

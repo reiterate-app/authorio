@@ -61,3 +61,35 @@ span.r-m {
 label.remember {
 	margin-top: -1em;
 }
+
+div.scopes {
+	margin-top: -1.5em;
+}
+
+ul.scope {
+	list-style: none;
+	padding-left: 20px;
+}
+
+ul.scope li label {
+	font-weight: normal;
+}
+
+div.topbar {
+	border-bottom: 1px solid darkgray;
+}
+
+div.topbar li {
+	display: inline-block;
+	padding: 12px;
+}
+
+div.topbar ul {
+	margin: 0 10px;
+	padding: 0;
+	text-align: right;
+}
+
+div.topbar li:first-child {
+	float: left;
+}

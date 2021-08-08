@@ -2,6 +2,9 @@ FactoryBot.define do
 	factory :user, class: Authorio::User do
 		profile_path { "/" }
 		password { 'password' }
+		email { 'user@example.com' }
+		full_name { 'John Doe' }
+		url { 'https://example.com' }
 	end
 
 	factory :request, class: Authorio::Request do
