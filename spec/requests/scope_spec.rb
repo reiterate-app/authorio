@@ -54,4 +54,12 @@ RSpec.describe "Auth Scope", type: :request do
     expect(json).to have_key('profile')
     expect(json['profile']).to_not have_key('email')
   end
+
+  it "handles missing scope" do
+    params.delete :scope
+    get "/authorio/auth", params: params
+    post_params.delete :scope
+    post "/authorio/users/1/authorize", params: post_params
+    expect(response).to redirect_to %r(\A#{client_redirect_uri})
+  end
 end
