@@ -55,7 +55,7 @@ module Authorio
 
     def redirect_back_with_error(error)
       flash[:alert] = error
-      redirect_back fallback_location: Authorio.authorization_path, allow_other_host: false
+      redirect_back fallback_location: '/'+Authorio.authorization_path, allow_other_host: false
     end
 
     def host_with_protocol

@@ -47,6 +47,7 @@ RSpec.describe "Requests", type: :request do
   end
 
   it "verifies correct code" do
+    verify_params[:code] = Authorio::Request.first.code
     post "/authorio/auth", params: verify_params
     expect(response).to be_successful
     expect(json['me']).to include('example.com')

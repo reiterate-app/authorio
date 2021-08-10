@@ -24,15 +24,10 @@ module Authorio
       # If there are any old requests from this (client, user), delete them now
       Request.where(authorio_user: @user, client: params[:client_id]).delete_all
 
-      auth_request = Request.create(
-        code: SecureRandom.hex(20),
-        redirect_uri: params[:redirect_uri],
-        client: params[:client_id], # IndieAuth client_id conflicts with Rails' _id foreign key convention
-        scope: params[:scope],
-        authorio_user: @user
-        )
+      Request.create!(request.parameters.slice(:client_id, :redirect_uri, :scope)) { |req|
+        req.authorio_user = @user
+      }
       session.update request.parameters.slice(*%w(state client_id code_challenge))
-      @rememberable = Authorio.configuration.local_session_lifetime && !@user_logged_in_locally
       @scope = params[:scope]&.split
     rescue ActiveRecord::RecordNotFound
       redirect_back_with_error "Invalid user"
