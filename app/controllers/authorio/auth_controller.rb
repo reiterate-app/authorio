@@ -127,21 +127,17 @@ module Authorio
     end
 
     def profile(request)
-      profile = { me: user_url(request.authorio_user) }
-      if request.scope
-        scopes = request.scope.split
-        if scopes.include? 'profile'
+      scopes = request.scope&.split
+      { me: user_url(request.authorio_user) }.tap do |profile|
+        if scopes&.include? 'profile'
           profile['profile'] = {
             name: request.authorio_user.full_name,
             url: request.authorio_user.url,
-            photo: request.authorio_user.photo
+            photo: request.authorio_user.photo,
+            email: (request.authorio_user.email if scopes.include? 'email')
           }.compact
-          if scopes.include? 'email'
-            profile['profile']['email'] = request.authorio_user.email
-          end
         end
       end
-      profile
     end
 
     def bearer_token
