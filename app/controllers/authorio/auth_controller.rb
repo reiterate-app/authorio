@@ -100,14 +100,13 @@ module Authorio
       params.require(:scope).permit(scope: [])
     end
 
-    def oauth_error(error, message=nil)
-      resp = { json: {'error': error} }
-      resp[:json]['error_message'] = message unless message.nil?
-      { json: resp, status: :bad_request }
+    def oauth_error(error, message=nil, status=:bad_request)
+      { json: { json: { error: error, error_message: message }.compact },
+        status: status }
     end
 
     def token_expired
-      { json: {'error': 'invalid_token', 'error_message': 'The access token has expired' }, status: :unauthorized }
+      oauth_error('invalid_token', 'The access token has expired', :unauthorized)
     end
 
     def code_challenge_failed?
