@@ -103,4 +103,11 @@ RSpec.describe "Requests", type: :request do
     post "/authorio/users/1/authorize", params: post_params
     expect(response).to redirect_to %r(\A#{client_redirect_uri})
   end
+
+  it "keeps only one (user,client) request" do
+    5.times do
+      get "/authorio/auth", params: params
+    end
+    expect(Authorio::Request.count).to eq(1)
+  end
 end

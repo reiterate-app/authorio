@@ -5,6 +5,7 @@ module Authorio
     validates_presence_of :code, :redirect_uri, :client
 
     before_validation :set_code, on: :create
+    before_create :sweep_requests
 
     # User has the right to modify requested scope
     def update_scope(scope)
@@ -38,15 +39,14 @@ module Authorio
       user_profile
     end
 
-    def self.find_and_destroy(code)
-      req = find_by( code: code ) or raise Exceptions::InvalidGrant, "code not found"
-      req.destroy
-    end
-
     private
 
     def set_code
       self.code = SecureRandom.hex(20)
+    end
+
+    def sweep_requests
+      Request.where(client: client, authorio_user: authorio_user).destroy_all
     end
   end
 end

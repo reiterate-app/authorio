@@ -20,10 +20,6 @@ module Authorio
         raise ::ActionController::ParameterMissing, param unless params[param].present?
       end
       @user = User.find_by_url! params[:me]
-
-      # If there are any old requests from this (client, user), delete them now
-      Request.where(authorio_user: @user, client: params[:client_id]).delete_all
-
       Request.create!(request.parameters.slice(:client_id, :redirect_uri, :scope)) { |req|
         req.authorio_user = @user
       }
@@ -52,17 +48,17 @@ module Authorio
     end
 
     def send_profile
-      request = validate_request Request.find_and_destroy(params[:code])
+      request = validate_request Request.find_by! code: params[:code]
       render json: absolute_profile!(request.profile)
-    rescue Exceptions::InvalidGrant => error
+    rescue Exceptions::InvalidGrant, ActiveRecord::RecordNotFound => error
       render oauth_error 'invalid_grant', error.message
     end
 
     def issue_token
-      req = validate_request Request.find_and_destroy(params[:code])
+      req = validate_request Request.find_by! code: params[:code]
       token = Token.create_from_request(req)
       render json: token.as_json.merge(absolute_profile! req.profile)
-    rescue Exceptions::InvalidGrant => error
+    rescue Exceptions::InvalidGrant, ActiveRecord::RecordNotFound => error
       render oauth_error, 'invalid_grant', error.message
     end
 
