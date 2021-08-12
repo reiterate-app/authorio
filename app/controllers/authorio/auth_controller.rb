@@ -147,14 +147,10 @@ module Authorio
     end
 
     def authenticate_user_from_session_or_password
-      session = user_session
-      if session
-        return session.authorio_user
-      else
-        user = User.find_by! profile_path: URI(auth_user_params[:url]).path
-        raise Authorio::Exceptions::InvalidPassword unless user.authenticate(auth_user_params[:password])
-        return user
-      end
+      user_session&.authorio_user or
+      User.find_by!( profile_path: URI(auth_user_params[:url]).path ).
+        authenticate(auth_user_params[:password]) or
+      raise Authorio::Exceptions::InvalidPassword
     end
 
     ScopeDescriptions = {
