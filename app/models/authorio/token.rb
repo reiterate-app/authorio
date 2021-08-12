@@ -12,5 +12,19 @@ module Authorio
     def expired?
       return expires_at < Time.now
     end
+
+    def as_json
+      {
+        access_token: auth_token,
+        expires_in: Authorio.configuration.token_expiration,
+        token_type: 'Bearer',
+        scope: scope
+      }
+    end
+
+    def self.create_from_request(req)
+      raise Exceptions::InvalidGrant, 'missing scope' if req.scope.blank?
+      Token.create(authorio_user: req.authorio_user, scope: req.scope, client: req.client)
+    end
   end
 end

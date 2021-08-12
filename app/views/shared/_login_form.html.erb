@@ -1,9 +1,9 @@
 <%= form_with(model: user, url: target, method: :post) do |form| %>
-  <% if scopes %>
+  <% if params[:scope] %>
     <%= fields_for :scope do |req_scope| %>
       <div class="scopes">
         <ul class="scope">
-          <% for scope in scopes %>
+          <% for scope in params[:scope].split %>
             <li>
               <%= label_tag(:scope, class: 'scope-label') do %>
                 <%= req_scope.check_box(:scope, {multiple: true, checked: true}, scope, nil) %>

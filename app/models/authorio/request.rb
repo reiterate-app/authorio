@@ -18,6 +18,31 @@ module Authorio
       self.client=value
     end
 
+    def invalid?(params)
+      redirect_uri != params[:redirect_uri] ||
+      client != params[:client_id] ||
+      created_at < Time.now - 10.minutes
+    end
+
+    def profile
+      scopes = scope&.split
+      user_profile = { me: authorio_user.profile_path }
+      if scopes&.include? 'profile'
+        user_profile[:profile] = {
+          name: authorio_user.full_name,
+          url: authorio_user.url,
+          photo: authorio_user.photo,
+          email: (authorio_user.email if scopes.include? 'email')
+        }.compact
+      end
+      user_profile
+    end
+
+    def self.find_and_destroy(code)
+      req = find_by( code: code ) or raise Exceptions::InvalidGrant, "code not found"
+      req.destroy
+    end
+
     private
 
     def set_code

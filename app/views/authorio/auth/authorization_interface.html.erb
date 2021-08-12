@@ -7,9 +7,9 @@
       <h3>Authorio</h3>
       <div class="client-row">
         <span class="client"><%= params[:client_id] %></span> wants to authenticate
-        <% if @scope %>and also<% end %>
+        <% if params[:scope] %>and also<% end %>
       </div>
-      <%= render 'shared/login_form', target: authorize_user_path(@user), user: @user, scopes: @scope, cancel: true %>
+      <%= render 'shared/login_form', target: authorize_user_path(@user), user: @user, cancel: true %>
     </div>
     <div class="col-md-4"></div>
   </div>

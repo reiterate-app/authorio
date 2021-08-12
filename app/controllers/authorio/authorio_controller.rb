@@ -62,5 +62,13 @@ module Authorio
       "#{request.scheme}://#{request.host}"
     end
 
+    # IndieAuth users are identified by a full URL, but Model classes are isolated
+    # from the hostname and scheme. Here we take the user profile path and upgrade it to a full URL
+    def absolute_profile!(h)
+      if h.key? :me and h[:me].start_with? '/'
+        h[:me].prepend host_with_protocol
+      end
+      h
+    end
   end
 end
