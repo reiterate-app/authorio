@@ -113,9 +113,9 @@ module Authorio
     end
 
     def invalid_request?(req)
-      req.redirect_uri != params[:redirect_uri] \
-      || req.client != params[:client_id] \
-      || req.created_at < Time.now - 10.minutes
+      req.redirect_uri != params[:redirect_uri] ||
+      req.client != params[:client_id] ||
+      req.created_at < Time.now - 10.minutes
     end
 
     def validate_request
