@@ -82,7 +82,7 @@ module Authorio
         render json: {
           'me': user_url(token.authorio_user),
           'client_id': token.client,
-          'scope': 'token.scope'
+          'scope': token.scope
         }
       end
     rescue ActiveRecord::RecordNotFound
