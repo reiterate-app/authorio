@@ -68,11 +68,7 @@ module Authorio
         token.delete
         render token_expired
       else
-        render json: {
-          'me': user_url(token.authorio_user),
-          'client_id': token.client,
-          'scope': token.scope
-        }
+        render json: absolute_profile!( token.verification_response )
       end
     rescue ActiveRecord::RecordNotFound
       head :bad_request

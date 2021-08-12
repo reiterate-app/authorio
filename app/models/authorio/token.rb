@@ -10,7 +10,7 @@ module Authorio
     end
 
     def expired?
-      return expires_at < Time.now
+      expires_at < Time.now
     end
 
     def as_json
@@ -18,6 +18,14 @@ module Authorio
         access_token: auth_token,
         expires_in: Authorio.configuration.token_expiration,
         token_type: 'Bearer',
+        scope: scope
+      }
+    end
+
+    def verification_response
+      {
+        me: authorio_user.profile_path,
+        client_id: client,
         scope: scope
       }
     end
