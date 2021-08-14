@@ -4,3 +4,5 @@ Lint/SendWithMixinArgument:
   Enabled: false
 Metrics/AbcSize:
   CountRepeatedAttributes: false
+AllCops:
+  NewCops: enable

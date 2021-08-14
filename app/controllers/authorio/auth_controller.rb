@@ -25,8 +25,8 @@ module Authorio
       @user = User.find_by_url! auth_interface_params[:me]
       Request.create_from_user_params(@user, auth_interface_params)
       session.update auth_interface_params.slice(:state, :client_id, :code_challenge)
-    rescue ActionController::ParameterMissing => e
-      render oauth_error 'invalid_request', "missing parameter #{e}"
+    rescue ActionController::ParameterMissing, ActionController::UnpermittedParameters => e
+      render oauth_error 'invalid_request', e
     end
 
     # POST /user/:id/authorize
@@ -77,12 +77,11 @@ module Authorio
       @auth_interface_params ||= begin
         required = %w[client_id redirect_uri state code_challenge]
         permitted = %w[me scope code_challenge_method response_type action controller]
-        required.each { |param| raise ::ActionController::ParameterMissing, param unless params[param].present? }
+        missing = required - params.keys
+        raise ::ActionController::ParameterMissing, missing unless missing.empty?
 
         unpermitted = params.keys - required - permitted
-        unless unpermitted.empty?
-          raise ::ActionController::UnpermittedParameters.new(unpermitted), unpermitted.join(', ')
-        end
+        raise ::ActionController::UnpermittedParameters, unpermitted unless unpermitted.empty?
 
         params.permit!
       end
