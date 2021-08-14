@@ -26,7 +26,7 @@ module Authorio
 
     def verification_response
       raise Exceptions::TokenExpired if expired?
-      
+
       {
         me: authorio_user.profile_path,
         client_id: client,

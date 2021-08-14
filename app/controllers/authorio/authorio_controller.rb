@@ -9,7 +9,7 @@ module Authorio
 
     def index
       if logged_in?
-        redirect_to edit_user_path(1)
+        redirect_to edit_user_path(current_user)
       else
         redirect_to new_session_path
       end
@@ -72,7 +72,7 @@ module Authorio
     # IndieAuth users are identified by a full URL, but Model classes are isolated
     # from the hostname and scheme. Here we take the user profile path and upgrade it to a full URL
     def absolute_profile!(json)
-      json[:me]&.prepend host_with_protocol if json[:me]&.start_with? '/'
+      json[:me].prepend host_with_protocol if json[:me]&.start_with? '/'
       json
     end
 
