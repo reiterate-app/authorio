@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-require 'authorio/version'
-require 'authorio/engine'
-require 'authorio/configuration'
-require 'authorio/routes'
-require 'authorio/exceptions'
+Dir[File.join(__dir__, 'authorio', '*.rb')].sort.each { |f| require f }
 
 module Authorio
   def self.configuration
