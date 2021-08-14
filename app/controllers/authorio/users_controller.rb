@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 module Authorio
   class UsersController < AuthorioController
-
     before_action :authorized?
 
     # GET   /users/:id/edit
@@ -11,7 +12,7 @@ module Authorio
     # PATCH /users/:id
     def update
       User.find(params[:id]).update(user_params)
-      flash[:info] = "Profile Saved"
+      flash[:info] = 'Profile Saved'
       redirect_to edit_user_path
     end
 

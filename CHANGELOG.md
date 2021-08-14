@@ -2,7 +2,7 @@
 
 ## [v0.8.3](https://github.com/reiterate-app/authorio/tree/v0.8.3) (2021-08-07)
 
-This version requires migrations if yiou are upgrading from 0.8.2. Rerun `rails authorio:install:migrations` and
+This version requires migrations if you are upgrading from 0.8.2. Rerun `rails authorio:install:migrations` and
 `rails db:migrate`
 
 **Bugfixes**

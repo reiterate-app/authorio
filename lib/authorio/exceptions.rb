@@ -1,14 +1,22 @@
+# frozen_string_literal: true
+
 module Authorio
-	module Exceptions
-		class InvalidGrant < RuntimeError; end
-		class InvalidPassword < RuntimeError; end
+  module Exceptions
+    class InvalidGrant < RuntimeError; end
 
-		class SessionReplayAttack < StandardError
-			attr_accessor :session
+    class InvalidPassword < RuntimeError; end
 
-			def initialize(session)
-				@session = session
-			end
-		end
-	end
+    class SessionReplayAttack < StandardError
+      attr_accessor :session
+
+      def initialize(session)
+        super
+        @session = session
+      end
+    end
+
+    class UserNotFound < StandardError; end
+
+    class TokenExpired < StandardError; end
+  end
 end
