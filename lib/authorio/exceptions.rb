@@ -10,7 +10,7 @@ module Authorio
       attr_accessor :session
 
       def initialize(session)
-        super
+        super("Session replay attack on user account #{session.authorio_user.id}")
         @session = session
       end
     end

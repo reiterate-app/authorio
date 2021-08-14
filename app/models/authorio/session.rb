@@ -21,7 +21,7 @@ module Authorio
     def self.find_by_cookie(cookie)
       selector, _token = cookie.split(':')
       session = find_by selector: selector
-      raise Authorio::Exceptions::SessionReplayAttack.new(session), 'replay' unless session.matches_cookie?(cookie)
+      raise Authorio::Exceptions::SessionReplayAttack.new, session unless session.matches_cookie?(cookie)
 
       session
     end
