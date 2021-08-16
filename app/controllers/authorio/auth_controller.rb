@@ -62,7 +62,7 @@ module Authorio
     end
 
     def verify_token
-      token = Token.find_by! auth_token: bearer_token
+      token = Token.find_by_auth_token! bearer_token
       render json: absolute_profile!(token.verification_response)
     rescue Exceptions::TokenExpired
       token.delete

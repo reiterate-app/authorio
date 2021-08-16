@@ -11,6 +11,14 @@ module Authorio
       self.expires_at = Time.now + Authorio.configuration.token_expiration
     end
 
+    # The token endpoint can get hit by bots, so short-circut the find if they
+    # don't send a bearer token
+    def self.find_by_auth_token!(token)
+      raise ActiveRecord::RecordNotFound unless token
+
+      find_by! auth_token: token
+    end
+
     def expired?
       expires_at < Time.now
     end
