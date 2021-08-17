@@ -5,16 +5,16 @@ module Authorio
     has_secure_password
 
     def self.find_by_url!(url)
-      find_by(profile_path: URI(url || '/').path) or raise Exceptions::UserNotFound
+      return first unless Authorio.configuration.multiuser
+
+      path = URI(url).path
+      find_by(username: path) or raise Exceptions::UserNotFound
     end
 
-    def profile
-      {
-        name: full_name,
-        url: url,
-        photo: photo,
-        email: email
-      }
+    def self.find_by_username!(name)
+      return first unless Authorio.configuration.multiuser
+
+      find_by(username: name) or raise Exceptions::UserNotFound
     end
   end
 end

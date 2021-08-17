@@ -22,9 +22,7 @@ module Authorio
 
     # GET /auth
     def authorization_interface
-      @user = User.find_by_url! auth_interface_params[:me]
-      Request.create_from_user_params(@user, auth_interface_params)
-      session.update auth_interface_params.slice(:state, :client_id, :code_challenge)
+      session.update auth_interface_params.slice(:state, :client_id, :code_challenge, :redirect_uri)
     rescue ActionController::ParameterMissing, ActionController::UnpermittedParameters => e
       render oauth_error 'invalid_request', e
     end
@@ -35,38 +33,28 @@ module Authorio
 
       user = authenticate_user_from_session_or_password
       write_session_cookie(user) if auth_user_params[:remember_me]
-
-      auth_req = Request.find_by_client_and_user!(session[:client_id], user)
-      auth_req.update_scope(scope_params[:scope]) if params.key? :scope
-      redirect_to_client(auth_req)
+      redirect_to_client(user)
     end
 
     def send_profile
-      request = validate_request Request.find_by! code: params[:code]
-      render json: absolute_profile!(request.profile)
+      @request = validate_request Request.find_by! code: params[:code]
     rescue Exceptions::InvalidGrant, ActiveRecord::RecordNotFound => e
       render oauth_error 'invalid_grant', e.message
     end
 
-    def redirect_to_client(auth_req)
-      redirect_params = { code: auth_req.code, state: session[:state] }
-      redirect_to "#{auth_req.redirect_uri}?#{redirect_params.to_query}"
-    end
-
     def issue_token
-      req = validate_request Request.find_by! code: params[:code]
-      token = Token.create_from_request(req)
-      render json: token.as_json.merge(absolute_profile!(req.profile))
+      @request = validate_request Request.find_by! code: params[:code]
+      @token = Token.create_from_request(@request)
     rescue Exceptions::InvalidGrant, ActiveRecord::RecordNotFound => e
-      render oauth_error, 'invalid_grant', e.message
+      render oauth_error 'invalid_grant', e.message
     end
 
     def verify_token
-      token = Token.find_by_auth_token! bearer_token
-      render json: absolute_profile!(token.verification_response)
-    rescue Exceptions::TokenExpired
-      token.delete
-      render token_expired
+      @token = Token.find_by_auth_token! bearer_token
+      if @token.expired?
+        @token.delete
+        render token_expired and return
+      end
     rescue ActiveRecord::RecordNotFound
       head :bad_request
     end
@@ -114,9 +102,18 @@ module Authorio
       request
     end
 
+    def redirect_to_client(user)
+      auth_req = Request.create(client: session[:client_id],
+                                redirect_uri: session[:redirect_uri],
+                                scope: (scope_params[:scope].join(' ') if params.key? :scope),
+                                authorio_user: user)
+      redirect_params = { code: auth_req.code, state: session[:state] }
+      redirect_to "#{auth_req.redirect_uri}?#{redirect_params.to_query}"
+    end
+
     def authenticate_user_from_session_or_password
       user_session&.authorio_user or
-        User.find_by!(profile_path: URI(auth_user_params[:url]).path)
+        User.find_by_username!(auth_user_params[:username])
             .authenticate(auth_user_params[:password]) or
         raise Exceptions::InvalidPassword
     end

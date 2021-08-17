@@ -9,7 +9,7 @@ module Authorio
 
     # POST /session
     def create
-      user = User.find_by! profile_path: URI(auth_user_params[:url]).path
+      user = User.find_by_username! auth_user_params[:username]
       raise Exceptions::InvalidPassword unless user.authenticate(auth_user_params[:password])
 
       write_session_cookie(user) if auth_user_params[:remember_me]

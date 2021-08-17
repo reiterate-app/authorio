@@ -1,5 +1,16 @@
 # Change Log
 
+## [v0.9](https://github.com/reiterate-app/authorio/tree/v0.8.4)  (2021-08-18)
+
+No new features in this release, but a major restructuring of the underlying code. In particular,
+user profile URLs have changed. They are no longer specified explicitly per-user, but are instead
+constructed on the fly via Rails' routing mechanics.
+
+- User profile URLs are now handled via Rails resource routes (verify_user_url) 3a9ccac1d8c285a06d8a8daca1999978175386d0
+- Fail early if token_request called with no token e082ac52b74cd11729eecaf9332181057e95b2e4
+- Cleaned up Exceptions::SessionReplayAttack 25459ce694fed0d3df41bd8a62cd84373e7f42f7
+- Auto require all files under lib/authorio d764e8c68ebfb203e0fc42155180092e825b7bdf
+
 ## [v0.8.3](https://github.com/reiterate-app/authorio/tree/v0.8.3) (2021-08-07)
 
 This version requires migrations if you are upgrading from 0.8.2. Rerun `rails authorio:install:migrations` and

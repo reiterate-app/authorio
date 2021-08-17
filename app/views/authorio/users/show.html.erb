@@ -1,0 +1,18 @@
+<%= stylesheet_link_tag "authorio/auth" %>
+<% content_for :title, "User Account" %>
+
+<%= indieauth_tag %>
+
+<div class="container authorio-auth">
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 auth-panel">
+      <h3>IndieAuth Account</h3>
+        Full Name <%= @user.full_name %>
+        URL <%= @user.url %>
+        Photo <%= image_tag @user.photo %>
+        Email <%= @user.email %>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>

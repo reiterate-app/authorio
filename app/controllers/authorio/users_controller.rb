@@ -2,9 +2,14 @@
 
 module Authorio
   class UsersController < AuthorioController
-    before_action :authorized?
+    before_action :authorized?, except: :verify
 
-    # GET   /users/:id/edit
+    # GET /users/:id
+    def show
+      @user = User.find(params[:id])
+    end
+
+    # GET /users/:id/edit
     def edit
       @user = User.find(params[:id])
     end
@@ -15,6 +20,10 @@ module Authorio
       flash[:info] = 'Profile Saved'
       redirect_to edit_user_path
     end
+
+    # This is only called by IndieAuth clients who wish to verify that a
+    # user profile URL we generated is in fact ours.
+    def verify; end
 
     private
 

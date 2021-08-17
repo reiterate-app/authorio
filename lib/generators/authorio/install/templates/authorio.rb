@@ -14,6 +14,10 @@ Authorio.configure do |config|
   # The path for token requests
   # config.token_endpoint = "token"
 
+  # Set to true to enable multiple user accounts. By default (in single user mode)
+  # there is only one user, and therefore you do not need to enter a username
+  # config.multiuser = false
+
   # How long tokens will last before expiring
   # config.token_expiration = 4.weeks
 

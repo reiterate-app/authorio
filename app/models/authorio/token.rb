@@ -23,22 +23,10 @@ module Authorio
       expires_at < Time.now
     end
 
-    def as_json
-      {
-        access_token: auth_token,
-        expires_in: Authorio.configuration.token_expiration,
-        token_type: 'Bearer',
-        scope: scope
-      }
-    end
-
     def verification_response
       raise Exceptions::TokenExpired if expired?
 
       {
-        me: authorio_user.profile_path,
-        client_id: client,
-        scope: scope
       }
     end
 

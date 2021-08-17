@@ -7,10 +7,12 @@ RSpec.describe "Token Exchange", type: :request do
 
   before :each do
     FactoryBot.create :user
+    post_params[:scope] = { scope: %w[profile email] }
   end
 
   it "gets a token" do
-    get "/authorio/auth", params: params
+    get '/authorio/auth', params: params
+    post '/authorio/user/authorize', params: post_params
     verify_params[:code] = Authorio::Request.first.code
 
     post "/authorio/token", params: verify_params
@@ -19,7 +21,8 @@ RSpec.describe "Token Exchange", type: :request do
   end
 
   it "validates a token" do
-    get "/authorio/auth", params: params
+    get '/authorio/auth', params: params
+    post '/authorio/user/authorize', params: post_params
     verify_params[:code] = Authorio::Request.first.code
 
     post "/authorio/token", params: verify_params
@@ -37,7 +40,8 @@ RSpec.describe "Token Exchange", type: :request do
   end
 
   it "rejects expired token" do
-    get "/authorio/auth", params: params
+    get '/authorio/auth', params: params
+    post '/authorio/user/authorize', params: post_params
     verify_params[:code] = Authorio::Request.first.code
 
     post "/authorio/token", params: verify_params

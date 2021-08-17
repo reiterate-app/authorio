@@ -22,29 +22,36 @@ RSpec.describe 'Requests', type: :request do
       .to include('Authorio')
   end
 
-  it 'requires valid user URL' do
-    params[:me] = 'http://localhost:3000/foo'
-    get '/authorio/auth', params: params
-    expect(flash[:alert]).to include 'User not found'
-  end
-
   it 'flashes message for incorrect password' do
     get '/authorio/auth', params: params
     post_params[:user][:password] = 'wrong'
-    post '/authorio/users/1/authorize', params: post_params
+    post '/authorio/user/authorize', params: post_params
     expect(flash[:alert]).to include('Incorrect password')
   end
 
   it 'redirects on successful authentication' do
     get '/authorio/auth', params: params
-    post '/authorio/users/1/authorize', params: post_params
+    post '/authorio/user/authorize', params: post_params
     expect(response).to redirect_to(/\A#{client_redirect_uri}/)
+  end
+
+  it 'shows authorization endpoint on returned user profile' do
+    # We return the Rails resource URL for the given user as the 'me' profie URL
+    # The IndieAuth spec requires that we show the same authorization endpoint there
+    # https://indieauth.spec.indieweb.org/#authorization-server-confirmation
+    verify_params[:code] = Authorio::Request.first.code
+    post '/authorio/auth', params: verify_params
+    me = json['me']
+    expect(me).to include('example.com')
+    get me
+    expect(response).to be_successful
+    expect(response.body).to include('authorization_endpoint')
   end
 
   it 'redirects to client id when user cancels' do
     get '/authorio/auth', params: params
     post_params[:commit] = 'Cancel'
-    post '/authorio/users/1/authorize', params: post_params
+    post '/authorio/user/authorize', params: post_params
     expect(response).to redirect_to params[:client_id]
   end
 
@@ -98,11 +105,11 @@ RSpec.describe 'Requests', type: :request do
     Authorio.configuration.local_session_lifetime = 1.day
     get '/authorio/auth', params: params
     post_params[:user][:remember_me] = '1'
-    post '/authorio/users/1/authorize', params: post_params
+    post '/authorio/user/authorize', params: post_params
     get '/authorio/auth', params: params
     expect(response.body).not_to include 'id="user_password"'
     post_params[:user][:password] = '' # Should not need password
-    post '/authorio/users/1/authorize', params: post_params
+    post '/authorio/user/authorize', params: post_params
     expect(response).to redirect_to(/\A#{client_redirect_uri}/)
   end
 

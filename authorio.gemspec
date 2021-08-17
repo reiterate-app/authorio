@@ -14,12 +14,13 @@ Gem::Specification.new do |spec|
   # spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
 
   spec.metadata["source_code_uri"] = "https://github.com/reiterate-app/authorio"
-  # spec.metadata["changelog_uri"] = "https://github.com/reiterate-app/authorio/blob/master/CHANGELOG.md"
+  spec.metadata["changelog_uri"] = "https://github.com/reiterate-app/authorio/blob/master/CHANGELOG.md"
 
   spec.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
   spec.add_dependency "rails", "~> 6.1.3", ">= 6.1.3.2"
   spec.add_dependency "bcrypt", "~> 3.0"
+  spec.add_dependency "jbuilder", "~> 2.0"
   spec.add_development_dependency "factory_bot_rails", "~> 6.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rspec-rails", "~> 5.0"

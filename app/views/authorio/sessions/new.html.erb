@@ -7,8 +7,7 @@
     <div class="col-md-4 auth-panel">
       <h3>Authorio</h3>
       <div class="client-row">Local Login</div>
-      <%= render 'shared/login_form', target: session_path(@session),
-       user: @session.authorio_user, scopes: nil, cancel: false %>
+      <%= render 'shared/login_form', target: session_path(@session), cancel: false %>
     </div>
     <div class="col-md-4"></div>
   </div>

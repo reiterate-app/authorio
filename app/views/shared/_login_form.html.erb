@@ -1,4 +1,4 @@
-<%= form_with(model: user, url: target, method: :post) do |form| %>
+<%= form_with(url: target, method: :post) do |form| %>
   <% if params[:scope] %>
     <%= fields_for :scope do |req_scope| %>
       <div class="scopes">
@@ -15,18 +15,23 @@
       </div>
     <% end %>
   <% end -%>
-  <%= form.label(:url, "User URL") %>
-  <%= form.text_field(:url, value: params[:me] || user_url(user), readonly: true) %>
-  <% unless logged_in? %>
-    <%= form.label(:password, "Password") %>
-    <%= form.password_field(:password, autofocus: true) %>
-    <% if rememberable? %>
-      <%= label_tag(:remember_me, class: 'remember') do %>
-        <%= form.check_box :remember_me %>
-        <span class='r-m'>Remember me for <%= distance_of_time_in_words Authorio.configuration.local_session_lifetime -%></span>
+  <%= fields_for :user do |user_scope| %>
+    <%= user_scope.hidden_field :dummy, value: 42 %>
+    <% if Authorio.configuration.multiuser %>
+      <%= user_scope.label(:username, "Username") %>
+      <%= user_scope.text_field(:username) %>
+    <% end -%>
+    <% unless logged_in? %>
+      <%= user_scope.label(:password, "Password") %>
+      <%= user_scope.password_field(:password, autofocus: true) %>
+      <% if rememberable? %>
+        <%= label_tag(:remember_me, class: 'remember') do %>
+          <%= user_scope.check_box :remember_me %>
+          <span class='r-m'>Remember me for <%= distance_of_time_in_words Authorio.configuration.local_session_lifetime -%></span>
+        <% end %>
       <% end %>
     <% end %>
-  <% end %>
+  <% end -%>
   <div class='auth-btn-row'>
     <% if cancel %>
       <%= form.submit("Cancel", class: 'btn btn-default auth-btn') %>

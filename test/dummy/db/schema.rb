@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_01_184120) do
+ActiveRecord::Schema.define(version: 2021_08_17_010101) do
 
   create_table "authorio_requests", force: :cascade do |t|
     t.string "code"
@@ -46,7 +46,7 @@ ActiveRecord::Schema.define(version: 2021_08_01_184120) do
   end
 
   create_table "authorio_users", force: :cascade do |t|
-    t.string "profile_path"
+    t.string "username"
     t.string "password_digest"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -54,7 +54,7 @@ ActiveRecord::Schema.define(version: 2021_08_01_184120) do
     t.string "full_name"
     t.string "url"
     t.string "photo"
-    t.index ["profile_path"], name: "index_authorio_users_on_profile_path", unique: true
+    t.index ["username"], name: "index_authorio_users_on_username", unique: true
   end
 
   add_foreign_key "authorio_requests", "authorio_users"
