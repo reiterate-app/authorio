@@ -4,17 +4,16 @@ module Authorio
   class User < ApplicationRecord
     has_secure_password
 
-    def self.find_by_url!(url)
-      return first unless Authorio.configuration.multiuser
+    class << self
+      def find_by_url!(url)
+        find_by_username!(URI(url).path)
+      end
 
-      path = URI(url).path
-      find_by(username: path) or raise Exceptions::UserNotFound
-    end
+      def find_by_username!(name)
+        return first unless Authorio.configuration.multiuser
 
-    def self.find_by_username!(name)
-      return first unless Authorio.configuration.multiuser
-
-      find_by(username: name) or raise Exceptions::UserNotFound
+        find_by(username: name) or raise Exceptions::UserNotFound
+      end
     end
   end
 end

@@ -50,13 +50,11 @@ module Authorio
     end
 
     def verify_token
-      @token = Token.find_by_auth_token! bearer_token
-      if @token.expired?
-        @token.delete
-        render token_expired and return
-      end
-    rescue ActiveRecord::RecordNotFound
-      head :bad_request
+      @token = Token.find_by_auth_token(bearer_token) or (head :bad_request and return)
+      return unless @token.expired?
+
+      @token.delete
+      render token_expired
     end
 
     private

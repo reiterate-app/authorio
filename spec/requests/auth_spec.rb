@@ -14,6 +14,7 @@ RSpec.describe 'Requests', type: :request do
 
   before :each do
     FactoryBot.create :request
+    Authorio.configuration.multiuser = false
   end
 
   it 'renders the authorization interface' do
@@ -40,6 +41,7 @@ RSpec.describe 'Requests', type: :request do
     # The IndieAuth spec requires that we show the same authorization endpoint there
     # https://indieauth.spec.indieweb.org/#authorization-server-confirmation
     verify_params[:code] = Authorio::Request.first.code
+    Authorio.configuration.multiuser = true
     post '/authorio/auth', params: verify_params
     me = json['me']
     expect(me).to include('example.com')

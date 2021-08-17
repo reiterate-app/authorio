@@ -44,7 +44,11 @@ module Authorio
     end
 
     def profile_url(user)
-      verify_user_url(user)
+      if Authorio.configuration.multiuser
+        verify_user_url(user)
+      else
+        "#{request.scheme}://#{request.host}"
+      end
     end
 
     protected

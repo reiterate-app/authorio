@@ -13,21 +13,12 @@ module Authorio
 
     # The token endpoint can get hit by bots, so short-circut the find if they
     # don't send a bearer token
-    def self.find_by_auth_token!(token)
-      raise ActiveRecord::RecordNotFound unless token
-
-      find_by! auth_token: token
+    def self.find_by_auth_token(token)
+      token and find_by auth_token: token
     end
 
     def expired?
       expires_at < Time.now
-    end
-
-    def verification_response
-      raise Exceptions::TokenExpired if expired?
-
-      {
-      }
     end
 
     def self.create_from_request(req)
