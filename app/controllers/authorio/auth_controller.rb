@@ -62,7 +62,7 @@ module Authorio
     def auth_interface_params
       @auth_interface_params ||= begin
         required = %w[client_id redirect_uri state]
-        permitted = %w[me scope code_challenge_method response_type action controller code_challenge]
+        permitted = %w[me scope code_challenge_method response_type action controller code_challenge dummy]
         missing = required - params.keys
         raise ::ActionController::ParameterMissing, missing unless missing.empty?
 

@@ -50,7 +50,7 @@ div.authorio-auth {
 	margin: 0.1em;
 }
 
-.authorio-auth .auth-btn-row .auth-btn:last-child {
+.authorio-auth .auth-btn-row .btn-success {
 	float: right;
 }
 

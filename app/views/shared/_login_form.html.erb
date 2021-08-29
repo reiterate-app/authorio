@@ -33,9 +33,9 @@
     <% end %>
   <% end -%>
   <div class='auth-btn-row'>
+    <%= form.submit("Sign in", class: 'btn btn-success auth-btn') %>
     <% if cancel %>
       <%= form.submit("Cancel", class: 'btn btn-default auth-btn') %>
     <% end %>
-    <%= form.submit("Sign in", class: 'btn btn-success auth-btn') %>
   </div>
 <% end %>
