@@ -38,8 +38,7 @@ module Authorio
 
     USER_SCOPE_DESCRIPTION = {
       profile: 'View basic profile information',
-      email: 'View your email address',
-      offline_access: 'Keep you logged in permanently (until revoked)'
+      email: 'View your email address'
     }.freeze
   end
 end
