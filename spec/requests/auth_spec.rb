@@ -23,6 +23,11 @@ RSpec.describe 'Requests', type: :request do
       .to include('Authorio')
   end
 
+  it 'Accepts legacy clients (without PKCE)' do
+    get '/authorio/auth', params: params.except(:code_challenge, :code_challenge_method)
+    expect(response.body).to include('Authorio')
+  end
+
   it 'flashes message for incorrect password' do
     get '/authorio/auth', params: params
     post_params[:user][:password] = 'wrong'
