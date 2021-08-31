@@ -1,3 +1,5 @@
+require 'support/auth_helper'
+
 FactoryBot.define do
 	factory :user, class: Authorio::User do
 		username { "admin" }
@@ -8,7 +10,8 @@ FactoryBot.define do
 	end
 
 	factory :request, class: Authorio::Request do
-		code { 'deadbeef' }
+		code { Authorio::Test::Constants.authorization_code }
+		code_challenge { Authorio::Test::Constants.code_challenge }
 		redirect_uri { 'https://example.net/redirect/' }
 		client { 'https://example.net/' }
 		authorio_user { association :user }

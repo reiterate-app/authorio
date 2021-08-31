@@ -16,10 +16,20 @@ module Authorio
       self.client = value
     end
 
-    def invalid?(params)
-      redirect_uri != params[:redirect_uri] ||
-        client != params[:client_id] ||
-        created_at < Time.now - 10.minutes
+    def validate_oauth(params)
+      redirect_uri == params[:redirect_uri] &&
+        client == params[:client_id] &&
+        created_at > Time.now - 10.minutes &&
+        code_challenge_matches(params[:code_verifier]) &&
+        self
+    end
+
+    def code_challenge_matches(verifier)
+      # For now, if original request did not have code challenge, then we pass by default
+      return true if verifier.blank? || code_challenge.blank?
+
+      sha256 = Digest::SHA256.digest verifier
+      Base64.urlsafe_encode64(sha256).sub(/=*$/,'') == code_challenge
     end
 
     def self.user_scope_description(scope)

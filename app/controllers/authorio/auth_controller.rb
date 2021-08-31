@@ -37,16 +37,12 @@ module Authorio
     end
 
     def send_profile
-      @request = validate_request Request.find_by! code: params[:code]
-    rescue Exceptions::InvalidGrant, ActiveRecord::RecordNotFound => e
-      render oauth_error 'invalid_grant', e.message
+      @auth_request = find_auth_request or (render validation_failed and return)
     end
 
     def issue_token
-      @request = validate_request Request.find_by! code: params[:code]
-      @token = Token.create_from_request(@request)
-    rescue Exceptions::InvalidGrant, ActiveRecord::RecordNotFound => e
-      render oauth_error 'invalid_grant', e.message
+      @auth_request = find_auth_request or (render validation_failed and return)
+      @token = Token.create_from_request(@auth_request)
     end
 
     def verify_token
@@ -86,23 +82,19 @@ module Authorio
       oauth_error('invalid_token', 'The access token has expired', :unauthorized)
     end
 
-    def code_challenge_failed?
-      # For now, if original request did not have code challenge, then we pass by default
-      return unless session[:code_challenge]
-
-      sha256 = Digest::SHA256.hexdigest params[:code_verifier]
-      Base64.urlsafe_encode64(sha256) != session[:code_challenge]
+    def validation_failed
+      oauth_error('invalid_grant', 'validation failed')
     end
 
-    def validate_request(request)
-      raise Exceptions::InvalidGrant, 'validation failed' if request.invalid?(params) || code_challenge_failed?
-
-      request
+    def find_auth_request
+      auth_request = Request.find_by code: params[:code]
+      auth_request&.validate_oauth params
     end
 
     def redirect_to_client(user)
       auth_req = Request.create(client: session[:client_id],
                                 redirect_uri: session[:redirect_uri],
+                                code_challenge: (session[:code_challenge] if session.key? :code_challenge),
                                 scope: (scope_params[:scope].join(' ') if params.key? :scope),
                                 authorio_user: user)
       redirect_params = { code: auth_req.code, state: session[:state] }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_17_010101) do
+ActiveRecord::Schema.define(version: 2021_08_31_155106) do
 
   create_table "authorio_requests", force: :cascade do |t|
     t.string "code"
@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 2021_08_17_010101) do
     t.integer "authorio_user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "code_challenge"
     t.index ["authorio_user_id"], name: "index_authorio_requests_on_authorio_user_id"
   end
 

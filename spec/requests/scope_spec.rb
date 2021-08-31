@@ -30,7 +30,7 @@ RSpec.describe 'Auth Scope', type: :request do
     get '/authorio/auth', params: params
     post_params[:scope] = { scope: %w[profile email] }
     post '/authorio/user/authorize', params: post_params
-    expect(response).to redirect_to(/\A#{client_redirect_uri}/)
+    expect(response).to redirect_to(/\A#{Authorio::Test::Constants.client_redirect_uri}/)
 
     verify_params[:code] = Authorio::Request.first.code
     post '/authorio/auth', params: verify_params
@@ -61,6 +61,6 @@ RSpec.describe 'Auth Scope', type: :request do
     get '/authorio/auth', params: params
     post_params.delete :scope
     post '/authorio/user/authorize', params: post_params
-    expect(response).to redirect_to(/\A#{client_redirect_uri}/)
+    expect(response).to redirect_to(/\A#{Authorio::Test::Constants.client_redirect_uri}/)
   end
 end

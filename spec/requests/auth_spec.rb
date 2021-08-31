@@ -38,7 +38,7 @@ RSpec.describe 'Requests', type: :request do
   it 'redirects on successful authentication' do
     get '/authorio/auth', params: params
     post '/authorio/user/authorize', params: post_params
-    expect(response).to redirect_to(/\A#{client_redirect_uri}/)
+    expect(response).to redirect_to(/\A#{Authorio::Test::Constants.client_redirect_uri}/)
   end
 
   it 'shows authorization endpoint on returned user profile' do
@@ -91,16 +91,22 @@ RSpec.describe 'Requests', type: :request do
 
   it 'rejects invalid code_challenge' do
     get '/authorio/auth', params: params
+    verify_params[:code] = Authorio::Request.first.code
     verify_params[:code_verifier] = 'wrong'
-    post '/authorio/auth', params: verify_params
-    expect(response).to have_http_status :bad_request
+    open_session do |sess|  # This call will be from the client (a separate host from user)
+      sess.post '/authorio/auth', params: verify_params
+      expect(sess.response).to have_http_status :bad_request
+      expect(sess.response.body).to include 'validation failed'
+    end
   end
 
   it 'accepts valid code_verifier' do
     get '/authorio/auth', params: params
     verify_params[:code] = Authorio::Request.first.code
-    post '/authorio/auth', params: verify_params
-    expect(response).to be_successful
+    open_session do |sess|
+      sess.post '/authorio/auth', params: verify_params
+      expect(sess.response).to be_successful
+    end
   end
 
   it 'shows password field if there is no previous session' do
@@ -117,7 +123,7 @@ RSpec.describe 'Requests', type: :request do
     expect(response.body).not_to include 'id="user_password"'
     post_params[:user][:password] = '' # Should not need password
     post '/authorio/user/authorize', params: post_params
-    expect(response).to redirect_to(/\A#{client_redirect_uri}/)
+    expect(response).to redirect_to(/\A#{Authorio::Test::Constants.client_redirect_uri}/)
   end
 
   it 'keeps only one (user,client) request' do
