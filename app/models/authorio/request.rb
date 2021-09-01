@@ -26,7 +26,7 @@ module Authorio
 
     def code_challenge_matches(verifier)
       # For now, if original request did not have code challenge, then we pass by default
-      return true if verifier.blank? || code_challenge.blank?
+      return true if code_challenge.blank?
 
       sha256 = Digest::SHA256.digest verifier
       Base64.urlsafe_encode64(sha256).sub(/=*$/, '') == code_challenge

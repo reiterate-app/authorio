@@ -28,9 +28,10 @@ module Authorio
     def authorize_user
       redirect_to session[:client_id] and return if params[:commit] == 'Cancel'
 
-      user = authenticate_user_from_session_or_password
-      write_session_cookie(user) if auth_user_params[:remember_me]
-      redirect_to_client(user)
+      @user = authenticate_user_from_session_or_password
+      write_session_cookie(@user) if auth_user_params[:remember_me]
+      create_auth_request
+      redirect_to_client
     end
 
     def send_profile
@@ -84,14 +85,17 @@ module Authorio
       auth_request&.validate_oauth params
     end
 
-    def redirect_to_client(user)
-      auth_req = Request.create(client: session[:client_id],
-                                redirect_uri: session[:redirect_uri],
-                                code_challenge: (session[:code_challenge] if session.key? :code_challenge),
-                                scope: (scope_params[:scope].join(' ') if params.key? :scope),
-                                authorio_user: user)
-      redirect_params = { code: auth_req.code, state: session[:state] }
-      redirect_to "#{auth_req.redirect_uri}?#{redirect_params.to_query}"
+    def create_auth_request
+      @auth_req = Request.create(client: session[:client_id],
+                                 redirect_uri: session[:redirect_uri],
+                                 code_challenge: (session[:code_challenge] if session.key? :code_challenge),
+                                 scope: (scope_params[:scope].join(' ') if params.key? :scope),
+                                 authorio_user: @user)
+    end
+
+    def redirect_to_client
+      redirect_params = { code: @auth_req.code, state: session[:state] }
+      redirect_to "#{@auth_req.redirect_uri}?#{redirect_params.to_query}"
     end
 
     def authenticate_user_from_session_or_password
