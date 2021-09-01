@@ -2,9 +2,6 @@
 
 module Authorio
   class AuthController < AuthorioController
-    require 'uri'
-    require 'digest'
-
     # These API-only endpoints are protected by code challenge and do not need CSRF protextion
     protect_from_forgery with: :exception, except: %i[send_profile issue_token]
 
@@ -58,13 +55,9 @@ module Authorio
     def auth_interface_params
       @auth_interface_params ||= begin
         required = %w[client_id redirect_uri state]
-        permitted = %w[me scope code_challenge_method response_type action controller code_challenge dummy]
-        missing = required - params.keys
-        raise ::ActionController::ParameterMissing, missing unless missing.empty?
-
-        unpermitted = params.keys - required - permitted
-        raise ::ActionController::UnpermittedParameters, unpermitted unless unpermitted.empty?
-
+        permitted = %w[me scope code_challenge_method response_type code_challenge dummy]
+        params.require(required)
+        params.permit(permitted + required)
         params.permit!
       end
     end

@@ -29,7 +29,7 @@ module Authorio
       return true if verifier.blank? || code_challenge.blank?
 
       sha256 = Digest::SHA256.digest verifier
-      Base64.urlsafe_encode64(sha256).sub(/=*$/,'') == code_challenge
+      Base64.urlsafe_encode64(sha256).sub(/=*$/, '') == code_challenge
     end
 
     def self.user_scope_description(scope)
