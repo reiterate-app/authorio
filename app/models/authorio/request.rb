@@ -19,7 +19,7 @@ module Authorio
     def validate_oauth(params)
       redirect_uri == params[:redirect_uri] &&
         client == params[:client_id] &&
-        created_at > Time.now - 10.minutes &&
+        created_at > 10.minutes.ago &&
         code_challenge_matches(params[:code_verifier]) &&
         self
     end
