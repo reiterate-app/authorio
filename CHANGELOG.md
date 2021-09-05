@@ -1,6 +1,20 @@
 # Change Log
 
-## [v0.9](https://github.com/reiterate-app/authorio/tree/v0.8.4)  (2021-08-18)
+## [v0.8.5](https://github.com/reiterate-app/authorio/tree/v0.8.5) (2021-09-05)
+
+This releases fixes a bug in the PKCE flow that was allowing failed checks to pass. Authorio
+still supports "legacy" clients which don't use PKCE at all, but if a code_challenge is given
+it is properly validated against the verifier.
+
+- Use rails idiom for time in req check3eeeabe3061cd53ff632135155d44df2adfcb9d9
+- Refactoring in auth con. Fix always-match blank verifier be6a89f22d03da67ac143604893747fb5570ec8e
+- Cleanup auth controller 62b574575b7b997beb77a987d4be8f1a9f5329ba
+- Fix: PKCE validation 0e6d1faa68b0cb09c7d9db14d2023a2e0d6ce5d5
+- Fix: Press Return from auth form defaults to Sign In abd50e9f6cb2d18c99e0cb7f5ff3d5553aa3403b
+- Removed offline_access scope since IndieAuth will not be requiring that 940414a0584b20a2c3551308c766b32ce792fd91
+- Fix: Legacy clients without PKCE raised exception 0884f2c35cd8da3035303e8cdc0fc32564dca866
+
+## [v0.8.4](https://github.com/reiterate-app/authorio/tree/v0.8.4)  (2021-08-18)
 
 No new features in this release, but a major restructuring of the underlying code. In particular,
 user profile URLs have changed. They are no longer specified explicitly per-user, but are instead
