@@ -5,6 +5,7 @@ Gem::Specification.new do |spec|
   spec.version     = Authorio::VERSION
   spec.authors     = ["Michael Meckler"]
   spec.email       = ["rattroupe@reiterate-app.com"]
+  spec.homepage    = "https://blog.reiterate.app/tag/authorio/"
   spec.summary     = "Indieauth Authentication endpoint for Rails"
   spec.description = "Rails engine to add IndieAuth authentication endpoint functionality"
   spec.license     = "MIT"
