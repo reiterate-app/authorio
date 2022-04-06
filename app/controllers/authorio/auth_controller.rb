@@ -26,7 +26,7 @@ module Authorio
 
     # POST /user/:id/authorize
     def authorize_user
-      redirect_to session[:client_id] and return if params[:commit] == 'Cancel'
+      redirect_to(session[:client_id], allow_other_host: true) and return if params[:commit] == 'Cancel'
 
       @user = authenticate_user_from_session_or_password
       write_session_cookie(@user) if auth_user_params[:remember_me]
@@ -68,8 +68,8 @@ module Authorio
     end
 
     def oauth_error(error, message = nil, status = :bad_request)
-      { json: { json: { error: error, error_message: message }.compact },
-        status: status }
+      { json: { json: { error:, error_message: message }.compact },
+        status: }
     end
 
     def token_expired
@@ -95,7 +95,7 @@ module Authorio
 
     def redirect_to_client
       redirect_params = { code: @auth_req.code, state: session[:state] }
-      redirect_to "#{@auth_req.redirect_uri}?#{redirect_params.to_query}"
+      redirect_to "#{@auth_req.redirect_uri}?#{redirect_params.to_query}", allow_other_host: true
     end
 
     def authenticate_user_from_session_or_password

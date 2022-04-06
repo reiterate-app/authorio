@@ -43,7 +43,7 @@ module Authorio
     end
 
     def sweep_requests
-      Request.where(client: client, authorio_user: authorio_user).destroy_all
+      Request.where(client:, authorio_user:).destroy_all
     end
 
     USER_SCOPE_DESCRIPTION = {

@@ -10,6 +10,8 @@ Gem::Specification.new do |spec|
   spec.description = "Rails engine to add IndieAuth authentication endpoint functionality"
   spec.license     = "MIT"
 
+  spec.required_ruby_version = '~> 3.0'
+
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   # spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
@@ -19,7 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
-  spec.add_dependency "rails", "~> 6.1.3", ">= 6.1.3.2"
+  spec.add_dependency "rails", "~> 7.0"
   spec.add_dependency "bcrypt", "~> 3.0"
   spec.add_dependency "jbuilder", "~> 2.0"
   spec.add_development_dependency "factory_bot_rails", "~> 6.0"
