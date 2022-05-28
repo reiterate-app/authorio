@@ -62,6 +62,22 @@ This part of the protocol will tell the IndieAuth client where to redirect for a
 you should only place this tag on your home page, and not in a layout that will put it on every page on your site.
 (It won't hurt anything but it's redundant to have it in multiple locations)
 
+Although IndieAuth works fine if you put the tag inside a page body, technically it's against the HTML spec to put
+`link` tags inside the `<body>`. So the best practice would be to set up the IndieAuth tags as content from your home page.
+
+If you want to set it up that way, then inside the layout where your `HEAD` is defined (typically `application.html.erb`)
+you will want to add this line:
+```erb
+<%= yield :indieauth_link_tags -%>
+```
+
+and then from your home page, add
+```erb
+<% content_for :indieauth_link_tags, indieauth_tag %>
+```
+
+This way the IndieAuth tags will appear in your HTML header, but only for your home page.
+
 ### 6. Set your initial password
 By default, Authorio uses a simple password to authenticate you. This password is hashed and stored in your app
 database, which presumably you control.
