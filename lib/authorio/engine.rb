@@ -11,7 +11,10 @@ module Authorio
     end
 
     initializer 'authorio.assets.precompile' do |app|
-      app.config.assets.precompile << ['authorio/application.css', 'authorio/auth.css']
+      authorio_assets = ['authorio/application.css', 'authorio/auth.css']
+      if app.config.respond_to? :assets
+        app.config.assets.precompile << authorio_assets
+      end
     end
   end
 end
